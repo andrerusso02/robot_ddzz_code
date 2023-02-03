@@ -6,6 +6,8 @@
     <!--arg name="model" default="$(env DIFFBOT_MODEL)" doc="model type [diffbot, remo]"/-->
     <arg name="model" default="diffbot" doc="model type [diffbot, remo]"/>
 
+    <arg name="teleop_method" default="none" doc="teleop method [none (default), keyboard, rqt]"/>
+
     <!-- Load controller configurations from YAML file to parameter server -->
     <rosparam command="load"
         file="$(find diffbot_control)/config/diffbot_control.yaml"/>
@@ -26,7 +28,11 @@
         <!-- param name="publish_frequency" type="double" value="30.0" /-->
     </node>
 
-    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
-        <param name="default_topic" value="/diffbot/mobile_base_controller/cmd_vel"/>
-    </node>
+    <!-- run the teleop node -->
+    <remap from="/cmd_vel" to="/diffbot/mobile_base_controller/cmd_vel"/>
+    <node name="ddbot_teleop_keyboard"  pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen"
+        if="$(eval arg('teleop_method') == 'keyboard')"/>
+    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering"
+        if="$(eval arg('teleop_method') == 'rqt')"/>
+
 </launch>
