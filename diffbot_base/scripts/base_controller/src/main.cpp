@@ -1,19 +1,17 @@
 #include <ros.h>
 
-#include "diffbot_base_config.h"
 #include "base_controller.h"
-#include "adafruit_feather_wing/adafruit_feather_wing.h"
-
+#include "diffbot_base_config.h"
+#include "h_bridge_controller/h_bridge_controller.h"
 
 ros::NodeHandle nh;
 
 using namespace diffbot;
 
-AdafruitMotorController motor_controller_right = AdafruitMotorController(MOTOR_RIGHT);
-AdafruitMotorController motor_controller_left = AdafruitMotorController(MOTOR_LEFT);
+HBridgeController motor_controller_right = HBridgeController(2, 3, 4);
+HBridgeController motor_controller_left = HBridgeController(7, 6, 5);
 
-BaseController<AdafruitMotorController, Adafruit_MotorShield> base_controller(nh, &motor_controller_left, &motor_controller_right);
-
+BaseController<HBridgeController, Adafruit_MotorShield> base_controller(nh, &motor_controller_left, &motor_controller_right);
 
 void setup()
 {
