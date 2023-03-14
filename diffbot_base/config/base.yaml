@@ -2,7 +2,7 @@
 # will be loaded onto the parameter server
 # See the diffbot.launch
 diffbot:
-  encoder_resolution: 542
+  encoder_resolution: 1496
   gain: 1.0
   trim: 0.0
   motor_constant: 1.0 #27.0
@@ -10,3 +10,8 @@ diffbot:
   debug:
     hardware_interface: false
     base_controller: true
+  pid:
+    k_p: 10.0
+    k_i: 1.0
+    k_d: 0.1
+

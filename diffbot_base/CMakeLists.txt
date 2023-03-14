@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   urdf
   roscpp
   sensor_msgs
+  std_msgs
   diffbot_msgs
   rosparam_shortcuts
 )
@@ -144,6 +145,8 @@ add_library(diffbot_hw_interface
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME} src/diffbot_base.cpp)
 
+add_executable(test_pid src/test_pid.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -161,6 +164,11 @@ target_link_libraries(diffbot_hw_interface
   ${catkin_LIBRARIES}
 )
 target_link_libraries(${PROJECT_NAME}
+  diffbot_hw_interface
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(test_pid
   diffbot_hw_interface
   ${catkin_LIBRARIES}
 )

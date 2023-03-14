@@ -1,0 +1,24 @@
+<launch>
+
+    <!-- arg vel -->
+    <arg name="vel"/>
+
+    <!-- Load controller config to the parameter server -->
+    <rosparam command="load" 
+              file="$(find diffbot_control)/config/diffbot_control.yaml"/>
+
+    <!-- Load base config to the parameter server -->
+    <rosparam command="load" 
+              file="$(find diffbot_base)/config/base.yaml"/>
+    
+    <param name="vel" value="$(arg vel)"/>
+
+    <!-- Run rosserial to connect with the Teensy 3.2 board connected to the motor encoders -->
+    <node name="rosserial_base_controller" pkg="rosserial_python" type="serial_node.py" respawn="false"
+        output="screen" ns="diffbot" args="_port:=/dev/ttyACM0
+                                            _baud:=57600"/>
+
+    <!-- Run test_pid node with parameter "vel" -->
+    <node name="test_pid" pkg="diffbot_base" type="test_pid" respawn="false"
+        output="screen" ns="diffbot"/>
+</launch>
