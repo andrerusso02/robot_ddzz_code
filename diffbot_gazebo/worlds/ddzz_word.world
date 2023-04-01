@@ -8,6 +8,7 @@
       <uri>model://sun</uri>
     </include>
     <model name="my_mesh">
+    <static>1</static>
       <pose>0 0 0  0 0 0</pose>
       <static>true</static>
       <link name="body">
@@ -17,6 +18,21 @@
             <mesh><uri>../models/table/table.dae</uri></mesh>
           </geometry>
         </visual>
+        <collision name='collision'>
+          <geometry>
+            <mesh><uri>../models/table/table.dae</uri></mesh>         
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <bounce/>
+            <friction>
+              <ode/>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
       </link>
     </model>
   </world>
