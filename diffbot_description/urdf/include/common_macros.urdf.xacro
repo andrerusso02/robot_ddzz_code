@@ -208,9 +208,15 @@
     </xacro:if>  
     <collision>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-      <geometry>
-        <box size="${base_prop['base']['x_size']} ${base_prop['base']['y_size']} ${base_prop['base']['z_size']}"/>
-      </geometry>
+        <geometry>
+          <!-- The folder path get a folder_name global parameter -->
+          <xacro:if value="${scale != '' }" >
+            <mesh filename="package://${package_name}/meshes/${robot_name}/${mesh}" scale="${scale}"/>
+          </xacro:if>
+          <xacro:if value="${scale == '' }" >
+            <mesh filename="package://${package_name}/meshes/${robot_name}/${mesh}" />
+          </xacro:if>
+        </geometry>
     </collision>
     </link>
   </xacro:macro>

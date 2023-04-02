@@ -6,7 +6,7 @@ laser:
   #mesh: ''
   dx: 0.0
   dy: 0.0
-  dz: 0.04
+  dz: 0.60
   angular_range:
     min: -3.1415
     max: 3.1415
