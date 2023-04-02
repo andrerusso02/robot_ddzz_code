@@ -32,5 +32,5 @@
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-    args="-urdf -model diffbot -param /diffbot/robot_description -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) "/>
+    args="-urdf -model diffbot -param /diffbot/robot_description -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y -1.5707 "/>
 </launch>
