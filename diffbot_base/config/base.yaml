@@ -14,4 +14,5 @@ diffbot:
     k_p: 10.0
     k_i: 0.5
     k_d: 0.1
+    pwm_min: 0
 
