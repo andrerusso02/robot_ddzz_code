@@ -47,7 +47,7 @@ class TurtleBot:
 
         self.max_vel = 0.3
         self.max_ang_vel = 2.0
-        self.ang_vel_disabling_lin_vel = 0.3
+        self.ang_vel_disabling_lin_vel = 0.5
     
     def goal_callback(self, goal_pose):
         print("goal received")
@@ -124,7 +124,13 @@ class TurtleBot:
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
         # print(self.steering_angle(goal_pose))
         # print(self.pose.theta)
-        return constant * (self.steering_angle(goal_pose) - self.pose.theta)
+        cmd = (self.steering_angle(goal_pose) - self.pose.theta)
+        if cmd > pi:
+            cmd = cmd - 2*pi
+        elif cmd < -pi:
+            cmd = cmd + 2*pi
+        cmd = constant * cmd
+        return cmd
     
     def get_angle(self, start_pose, goal_pose):
         angle = goal_pose.theta - start_pose.theta
@@ -214,10 +220,8 @@ class TurtleBot:
 
             self.update_pose()
 
-
             # Linear velocity in the x-axis.
             vel_msg.linear.x = self.linear_vel(goal_pose)
-
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
 
@@ -258,7 +262,7 @@ class TurtleBot:
         print("distance to goal: ", dist)
         print()
 
-        self.move2angle(goal_pose.theta, 0.05)
+        self.move2angle(goal_pose.theta, 0.1)
 
         print("moved to angle")
 
