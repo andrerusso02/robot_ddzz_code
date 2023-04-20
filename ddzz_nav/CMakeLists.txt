@@ -22,6 +22,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-catkin_install_python(PROGRAMS src/gotogoal.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# catkin_install_python(
+#   PROGRAMS scripts/gotogoal.py scripts/round_trip.py
+#   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+# )

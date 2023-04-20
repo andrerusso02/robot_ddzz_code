@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 import signal
 import time
 from math import atan2, pi, pow, sqrt
@@ -13,9 +13,7 @@ from turtlesim.msg import Pose
 def handler(signum, frame):
         exit(1)
 
-
-
-class TurtleBot:
+class Ddzzbot:
 
     def __init__(self):
         # Creates a node with name 'turtlebot_controller' and make sure it is a
@@ -28,11 +26,6 @@ class TurtleBot:
         # Publisher which will publish to the topic '/turtle1/cmd_vel'.
         self.velocity_publisher = rospy.Publisher('/diffbot/mobile_base_controller/cmd_vel',
                                                   Twist, queue_size=10)
-
-        # A subscriber to the topic '/turtle1/pose'. self.update_pose is called
-        # when a message of type Pose is received.
-    #     self.pose_subscriber = rospy.Subscriber('/turtle1/pose',
-    #                                             Pose, self.update_pose)
 
         # subscriber for rviz goal (posestamped)
         self.goal_subscriber = rospy.Subscriber(
@@ -275,7 +268,7 @@ class TurtleBot:
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
     try:
-        x = TurtleBot()
+        x = Ddzzbot()
         # x.move2goal()
         rospy.spin()
     except rospy.ROSInterruptException:
