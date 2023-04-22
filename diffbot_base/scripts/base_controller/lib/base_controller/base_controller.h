@@ -352,9 +352,13 @@ namespace diffbot {
         ros::Publisher pub_encoders_;
 
         sensor_msgs::JointState msg_measured_joint_states_;
+        std_msgs::Float32 msg_motor_cmd_left_;
+        std_msgs::Float32 msg_motor_cmd_right_;
         ros::Publisher pub_measured_joint_states_;
+        ros::Publisher pub_motor_command_left_;
+        ros::Publisher pub_motor_command_right_;
 
-        MotorControllerIntf<TMotorDriver>* p_motor_controller_right_;
+        MotorControllerIntf<TMotorDriver> *p_motor_controller_right_;
         MotorControllerIntf<TMotorDriver>* p_motor_controller_left_;
 
         ros::Subscriber<diffbot_msgs::WheelsCmdStamped, BaseController<TMotorController, TMotorDriver>> sub_wheel_cmd_velocities_;
@@ -388,7 +392,9 @@ diffbot::BaseController<TMotorController, TMotorDriver>
     , encoder_right_(nh, ENCODER_RIGHT_H1, ENCODER_RIGHT_H2, ENCODER_RESOLUTION)
     , sub_reset_encoders_("reset", &BC<TMotorController, TMotorDriver>::resetEncodersCallback, this)
     , pub_encoders_("encoder_ticks", &encoder_msg_)
-    , pub_measured_joint_states_("measured_joint_states", &msg_measured_joint_states_)
+    , pub_measured_joint_states_("measured_joint_states", &msg_measured_joint_states_)*
+    , pub_motor_command_left_("motor_command_left", &motor_cmd_left_)
+    , pub_motor_command_right_("motor_command_right", &motor_cmd_right_)
     , sub_wheel_cmd_velocities_("wheel_cmd_velocities", &BC<TMotorController, TMotorDriver>::commandCallback, this)
     , last_update_time_(nh.now())
     , update_rate_(UPDATE_RATE_IMU, UPDATE_RATE_CONTROL, UPDATE_RATE_DEBUG)
@@ -418,6 +424,8 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::setup()
     msg_measured_joint_states_.velocity = (float*)malloc(sizeof(float) * 2);
     msg_measured_joint_states_.velocity_length = 2;
     nh_.advertise(pub_measured_joint_states_);
+    nh_.advertise(pub_motor_command_left_);
+    nh_.advertise(pub_motor_command_right_);
 
     nh_.subscribe(sub_wheel_cmd_velocities_);
     nh_.subscribe(sub_reset_encoders_);
@@ -552,6 +560,14 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::write()
 
     p_motor_controller_left_->setSpeed(motor_cmd_left_);
     p_motor_controller_right_->setSpeed(motor_cmd_right_);
+
+    // Publish the motor commands
+    msg_motor_cmd_left_.data = motor_cmd_left_;
+    msg_motor_cmd_right_.data = motor_cmd_right_;
+    pub_motor_cmd_left_.publish(&msg_motor_cmd_left_);
+    pub_motor_cmd_right_.publish(&msg_motor_cmd_right_);
+    //pub_motor_command_left_
+    poisson
 }
 
 template <typename TMotorController, typename TMotorDriver>

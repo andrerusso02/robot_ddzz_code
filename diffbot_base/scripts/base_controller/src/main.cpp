@@ -58,8 +58,8 @@ void loop()
             //imu_is_initialized = initIMU();
             if(imu_is_initialized)
                 nh.loginfo("IMU Initialized");
-            else
-                nh.logfatal("IMU failed to initialize. Check your IMU connection.");
+            //else
+                //nh.logfatal("IMU failed to initialize. Check your IMU connection.");
         }
         else
         {
