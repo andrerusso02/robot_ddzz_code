@@ -13,6 +13,17 @@ from turtlesim.msg import Pose
 def handler(signum, frame):
         exit(1)
 
+def map(x, in_min, in_max, out_min, out_max):
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+# convert to -pi / pi
+def to_pi(angle):
+    if angle > pi:
+        angle = angle - 2*pi
+    elif angle < -pi:
+        angle = angle + 2*pi
+    return angle
+
 class Ddzzbot:
 
     def __init__(self):
@@ -28,19 +39,27 @@ class Ddzzbot:
                                                   Twist, queue_size=10)
 
         # subscriber for rviz goal (posestamped)
-        self.goal_subscriber = rospy.Subscriber(
-            '/move_base_simple/goal', PoseStamped, self.goal_callback)
+        # self.goal_subscriber = rospy.Subscriber(
+        #     '/move_base_simple/goal', PoseStamped, self.goal_callback)
 
         # goal_pose = Pose()
 
         # rate
-        self.rate = rospy.Rate(10)
+        self.rate = rospy.Rate(20)
 
         self.pose = Pose()
 
+        
         self.max_vel = 0.3
+        self.min_ang_vel = 0.5
         self.max_ang_vel = 2.0
+        self.rotation_coef = 1.5 # 2.5
+        self.low_vel_angle = pi/2.0
         self.ang_vel_disabling_lin_vel = 0.5
+
+        while not x.update_pose():
+            self.rate.sleep()
+            pass
     
     def goal_callback(self, goal_pose):
         print("goal received")
@@ -59,43 +78,48 @@ class Ddzzbot:
             # convert quaternions to euler
             quaternion = trans.transform.rotation
             self.pose.theta = atan2(quaternion.z, quaternion.w)*2.0
+            return True
             
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
             print("Error, could not get pose")
+            return False
     
     def move2angle(self, angle, tolerance):
         """go to angle in radians"""
         self.update_pose()
         # print("angle: " + str(angle))
         # print("pose.theta: " + str(self.pose.theta))
-        # print("angle error: " + str(self.get_angle(self.pose, angle)))
-        while abs(self.get_angle(self.pose, angle)) > tolerance:
-            self.cmd_rotation(angle)
+        # print("angle error: " + str(self.get_relative_angle(self.pose, angle)))
+        while abs(self.get_relative_angle(self.pose, angle)) > tolerance:
+            self.apply_rotation(angle)
+            self.rate.sleep()
             # print("angle: " + str(angle))
             # print("pose.theta: " + str(self.pose.theta))
-            # print("diff: " + str(self.get_angle(self.pose, angle)))
+            # print("diff: " + str(self.get_relative_angle(self.pose, angle)))
             # print()
         
+        vel_msg = Twist()
+        vel_msg.linear.x = 0
+        vel_msg.angular.z = 0
+        self.velocity_publisher.publish(vel_msg)
+
         # lock position for 1 second
-        t = time.time()
-        while time.time() - t < 1.0:
-            self.cmd_rotation(angle)
+        # t = time.time()
+        # while time.time() - t < 1.0:
+        #     self.apply_rotation(angle)
 
         # stop
-        # vel_msg = Twist()
-        # vel_msg.linear.x = 0
-        # vel_msg.angular.z = 0
-        # self.velocity_publisher.publish(vel_msg)
+
         
     
-    def cmd_rotation(self, angle):
+    def apply_rotation(self, angle):
         """lock angle in radians"""
         self.update_pose()
         vel_msg = Twist()
         vel_msg.linear.x = 0.0
-        vel_msg.angular.z = self.angular_vel_rotation(angle)
+        vel_msg.angular.z = self.compute_cmd_ang_vel(angle)
         self.velocity_publisher.publish(vel_msg)
-        self.rate.sleep()
+        
         
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
@@ -125,33 +149,45 @@ class Ddzzbot:
         cmd = constant * cmd
         return cmd
     
-    def get_angle(self, start_pose, goal_pose):
+    def get_relative_angle(self, start_pose, goal_pose):
         angle = goal_pose.theta - start_pose.theta
         if angle > pi:
             angle = angle - 2*pi
         elif angle < -pi:
             angle = angle + 2*pi
         return angle
+    
 
-    def get_angle(self, start_pose, goal_angle):
-        angle = goal_angle - start_pose.theta
-        if angle > pi:
-            angle = angle - 2*pi
-        elif angle < -pi:
-            angle = angle + 2*pi
+
+    def get_relative_angle(self, start_pose, goal_angle):
+        angle = to_pi(goal_angle) - to_pi(start_pose.theta)
+        angle = to_pi(angle)
+        
+        print("angle = " + str(angle))
         return angle
 
 
-    def angular_vel_rotation(self, goal_angle, constant=2.5):
+    def compute_cmd_ang_vel(self, goal_angle):
         # print("goal_angle: " + str(goal_angle))
         # print("pose.theta: " + str(self.pose.theta))
         # print("diff: " + str(goal_angle - self.pose.theta))
-        cmd = self.get_angle(self.pose, goal_angle)
-        # print("cmd: " + str(cmd))
-        cmd = constant * cmd
-        if abs(cmd) > self.max_ang_vel:
-            cmd =  self.max_ang_vel * self.sign(cmd)
+        angle = self.get_relative_angle(self.pose, goal_angle)
+
+        if angle > self.low_vel_angle:
+            return self.max_ang_vel * self.sign(angle)
+        
+        # angle < threshold !
+
+        cmd = map(abs(angle), 0, self.low_vel_angle, self.min_ang_vel, self.max_ang_vel) * self.sign(angle)
         return cmd
+
+        # print("cmd: " + str(cmd))
+        # cmd = self.rotation_coef * cmd
+        # if abs(cmd) > self.max_ang_vel:
+        #     cmd =  self.max_ang_vel * self.sign(cmd)
+        # if abs(cmd) < self.min_ang_vel:
+        #     cmd =  self.min_ang_vel * self.sign(cmd)
+        # return cmd
 
     def sign(self, x):
         if x >= 0:
@@ -269,7 +305,16 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
     try:
         x = Ddzzbot()
-        # x.move2goal()
+
+
+
+        while(1):
+            x.move2angle(pi, 5.0*(pi/180.0))
+            print("pi")
+            time.sleep(3)
+            x.move2angle(0.0, 5.0*(pi/180.0))
+            print("0")
+            time.sleep(3)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
