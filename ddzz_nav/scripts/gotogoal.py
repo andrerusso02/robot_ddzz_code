@@ -131,8 +131,13 @@ class Ddzzbot:
         angle_to_reach = self.get_steering_angle(goal_pose)
         vel_msg.angular.z = self.compute_cmd_ang_vel(angle_to_reach)
 
-        dist_goal = self.get_distance(goal_pose)
-        vel_msg.linear.x = self.compute_cmd_lin_vel(dist_goal)
+        th = pi/3.0
+        print(self.get_relative_angle(self.pose, angle_to_reach))
+        if abs(self.get_relative_angle(self.pose, angle_to_reach)) > th:
+           vel_msg.linear.x = 0.0
+        else: 
+            dist_goal = self.get_distance(goal_pose)
+            vel_msg.linear.x = self.compute_cmd_lin_vel(dist_goal)
 
         # vel_msg.angular.z = 0.0
 
