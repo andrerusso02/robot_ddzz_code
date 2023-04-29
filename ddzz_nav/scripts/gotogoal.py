@@ -49,15 +49,19 @@ class Ddzzbot:
 
         self.pose = Pose()
 
-        
-        self.max_vel = 0.3
+        self.min_vel = 0.2
+        self.max_vel = 0.4
+        self.linear_coef = 1.5
+        self.low_vel_dist = 0.1
+
         self.min_ang_vel = 0.5
         self.max_ang_vel = 2.0
         self.rotation_coef = 1.5 # 2.5
         self.low_vel_angle = pi/2.0
+
         self.ang_vel_disabling_lin_vel = 0.5
 
-        while not x.update_pose():
+        while not self.update_pose():
             self.rate.sleep()
             pass
     
@@ -119,29 +123,50 @@ class Ddzzbot:
         vel_msg.linear.x = 0.0
         vel_msg.angular.z = self.compute_cmd_ang_vel(angle)
         self.velocity_publisher.publish(vel_msg)
+    
+    def apply_move(self, goal_pose):
+
+        vel_msg = Twist()
+
+        angle_to_reach = self.get_steering_angle(goal_pose)
+        vel_msg.angular.z = self.compute_cmd_ang_vel(angle_to_reach)
+
+        dist_goal = self.get_distance(goal_pose)
+        vel_msg.linear.x = self.compute_cmd_lin_vel(dist_goal)
+
+        # vel_msg.angular.z = 0.0
+
+        # print("vel_msg :")
+        # print("linear.x: ", vel_msg.linear.x)
+        # print("angular.z: ", vel_msg.angular.z)
+        # print()
+
+        self.velocity_publisher.publish(vel_msg)
+
+
         
         
-    def euclidean_distance(self, goal_pose):
+    def get_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
         return sqrt(pow((goal_pose.x - self.pose.x), 2) +
                     pow((goal_pose.y - self.pose.y), 2))
 
     def linear_vel(self, goal_pose, constant=2.0):
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
-        cmd = constant * self.euclidean_distance(goal_pose)
+        cmd = constant * self.get_distance(goal_pose)
         if abs(cmd) > self.max_vel:
             cmd = self.max_vel * self.sign(cmd)
         return cmd
 
-    def steering_angle(self, goal_pose):
+    def get_steering_angle(self, goal_pose):
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
         return atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x)
 
     def angular_vel(self, goal_pose, constant=2.0):
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
-        # print(self.steering_angle(goal_pose))
+        # print(self.get_steering_angle(goal_pose))
         # print(self.pose.theta)
-        cmd = (self.steering_angle(goal_pose) - self.pose.theta)
+        cmd = (self.get_steering_angle(goal_pose) - self.pose.theta)
         if cmd > pi:
             cmd = cmd - 2*pi
         elif cmd < -pi:
@@ -162,9 +187,16 @@ class Ddzzbot:
     def get_relative_angle(self, start_pose, goal_angle):
         angle = to_pi(goal_angle) - to_pi(start_pose.theta)
         angle = to_pi(angle)
-        
-        print("angle = " + str(angle))
         return angle
+
+
+    def compute_cmd_lin_vel(self, goal_dist):
+
+        if goal_dist > self.low_vel_dist:
+            return self.max_vel
+        
+        cmd = map(goal_dist, 0, self.low_vel_dist, self.min_vel, self.max_vel)
+        return cmd
 
 
     def compute_cmd_ang_vel(self, goal_angle):
@@ -210,78 +242,32 @@ class Ddzzbot:
 
         """Moves the turtle to the goal."""
 
-        # Get the input from the user.
-        # goal_pose.x = float(input("Set your x goal: "))
-        # goal_pose.y = float(input("Set your y goal: "))
+        distance_tolerance = 0.05
 
-        # # Please, insert a number slightly greater than 0 (e.g. 0.01).
-        # distance_tolerance = float(input("Set your tolerance: "))
-
-        # goal_pose.x = 1.4
-        # goal_pose.y = 0.0
-
-        # Please, insert a number slightly greater than 0 (e.g. 0.01).
-        distance_tolerance = 0.1
-
-        vel_msg = Twist()
-        
         dist = 10000.0
 
         self.update_pose()
 
-        print("pose :")
-        print("x: ", self.pose.x)
-        print("y: ", self.pose.y)
-        print("theta: ", self.pose.theta)
-        print("distance to goal: ", dist)
-        print()
+        # print("pose :")
+        # print("x: ", self.pose.x)
+        # print("y: ", self.pose.y)
+        # print("theta: ", self.pose.theta)
+        # print("distance to goal: ", dist)
+        # print()
 
-        self.move2angle(self.steering_angle(goal_pose), 0.05)
+        self.move2angle(self.get_steering_angle(goal_pose), 0.05)
 
         print("moved to angle")
 
         while dist >= distance_tolerance:
 
-            dist = self.euclidean_distance(goal_pose)
-
-            # Porportional controller.
-            # https://en.wikipedia.org/wiki/Proportional_control
-
             self.update_pose()
+            dist = self.get_distance(goal_pose)
 
-            # Linear velocity in the x-axis.
-            vel_msg.linear.x = self.linear_vel(goal_pose)
-            vel_msg.linear.y = 0
-            vel_msg.linear.z = 0
-
-            # Angular velocity in the z-axis.
-            vel_msg.angular.x = 0
-            vel_msg.angular.y = 0
-            vel_msg.angular.z = self.angular_vel(goal_pose)
-
-            # disable linear velocity if angular velocity is too high
-            if abs(vel_msg.angular.z) > self.ang_vel_disabling_lin_vel:
-                vel_msg.linear.x = 0.0
-                print("angular velocity too high, disabling linear velocity")
-            else:
-                print("angular velocity low enough, enabling linear velocity")
-        
-            # print("vel_msg :")
-            # print("linear.x: ", vel_msg.linear.x)
-            # print("angular.z: ", vel_msg.angular.z)
-            # print()
-
-
-            # Publishing our vel_msg
-            self.velocity_publisher.publish(vel_msg)
+            self.apply_move(goal_pose)
 
             # Publish at the desired rate.
             self.rate.sleep()
-
-        # Stopping our robot after the movement is over.
-        vel_msg.linear.x = 0
-        vel_msg.angular.z = 0
-        self.velocity_publisher.publish(vel_msg)
 
         print("moved to goal")
         print("pose :")

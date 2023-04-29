@@ -4,8 +4,6 @@ import signal
 import sys
 import time
 
-print(sys.path)
-
 import rospy
 from gotogoal import Ddzzbot
 from turtlesim.msg import Pose
@@ -30,7 +28,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
     x = Ddzzbot()
     try:
-        while True:
+        # while True:
             x.move2goal(pose1)
             time.sleep(2.0)
             x.move2goal(pose2)
