@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
 
     pose1 = Pose()
-    pose1.x = 0.5
+    pose1.x = 1.0
     pose1.y = 0.0
     pose1.theta = 0.0
 
@@ -28,10 +28,10 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
     x = Ddzzbot()
     try:
-        # while True:
+        while True:
             x.move2goal(pose1)
-            time.sleep(2.0)
+            time.sleep(4.0)
             x.move2goal(pose2)
-            time.sleep(2.0)
+            time.sleep(4.0)
     except rospy.ROSInterruptException:
         pass

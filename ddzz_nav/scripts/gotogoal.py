@@ -49,15 +49,17 @@ class Ddzzbot:
 
         self.pose = Pose()
 
-        self.min_vel = 0.2
+        self.min_vel = 0.05
         self.max_vel = 0.4
         self.linear_coef = 1.5
-        self.low_vel_dist = 0.1
+        self.low_vel_dist = 0.50
 
         self.min_ang_vel = 0.5
         self.max_ang_vel = 2.0
         self.rotation_coef = 1.5 # 2.5
         self.low_vel_angle = pi/2.0
+
+        self.max_ang_vel_moving = 3.0
 
         self.ang_vel_disabling_lin_vel = 0.5
 
@@ -121,7 +123,7 @@ class Ddzzbot:
         self.update_pose()
         vel_msg = Twist()
         vel_msg.linear.x = 0.0
-        vel_msg.angular.z = self.compute_cmd_ang_vel(angle)
+        vel_msg.angular.z = self.compute_cmd_ang_vel(angle, self.max_ang_vel)
         self.velocity_publisher.publish(vel_msg)
     
     def apply_move(self, goal_pose):
@@ -129,7 +131,7 @@ class Ddzzbot:
         vel_msg = Twist()
 
         angle_to_reach = self.get_steering_angle(goal_pose)
-        vel_msg.angular.z = self.compute_cmd_ang_vel(angle_to_reach)
+        vel_msg.angular.z = self.compute_cmd_ang_vel(angle_to_reach, self.max_ang_vel_moving)
 
         th = pi/3.0
         print(self.get_relative_angle(self.pose, angle_to_reach))
@@ -204,18 +206,18 @@ class Ddzzbot:
         return cmd
 
 
-    def compute_cmd_ang_vel(self, goal_angle):
+    def compute_cmd_ang_vel(self, goal_angle, max_vel):
         # print("goal_angle: " + str(goal_angle))
         # print("pose.theta: " + str(self.pose.theta))
         # print("diff: " + str(goal_angle - self.pose.theta))
         angle = self.get_relative_angle(self.pose, goal_angle)
 
         if angle > self.low_vel_angle:
-            return self.max_ang_vel * self.sign(angle)
+            return max_vel * self.sign(angle)
         
         # angle < threshold !
 
-        cmd = map(abs(angle), 0, self.low_vel_angle, self.min_ang_vel, self.max_ang_vel) * self.sign(angle)
+        cmd = map(abs(angle), 0, self.low_vel_angle, self.min_ang_vel, max_vel) * self.sign(angle)
         return cmd
 
         # print("cmd: " + str(cmd))
@@ -260,7 +262,7 @@ class Ddzzbot:
         # print("distance to goal: ", dist)
         # print()
 
-        self.move2angle(self.get_steering_angle(goal_pose), 0.05)
+        self.move2angle(self.get_steering_angle(goal_pose), 0.02)
 
         print("moved to angle")
 
@@ -273,6 +275,11 @@ class Ddzzbot:
 
             # Publish at the desired rate.
             self.rate.sleep()
+        
+        vel_msg = Twist()
+        vel_msg.linear.x = 0
+        vel_msg.angular.z = 0
+        self.velocity_publisher.publish(vel_msg)
 
         print("moved to goal")
         print("pose :")
