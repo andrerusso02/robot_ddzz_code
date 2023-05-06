@@ -7,8 +7,8 @@
 // will be read from parameter server
 #define ENCODER_RESOLUTION 542
 
-#define ENCODER_RIGHT_H1 20
-#define ENCODER_RIGHT_H2 21
+#define ENCODER_RIGHT_H1 3
+#define ENCODER_RIGHT_H2 2
 
 /// Motor i2c address
 #define MOTOR_DRIVER_ADDR 0x60
@@ -23,7 +23,7 @@
 
 
 #define UPDATE_RATE_CONTROL 20
-#define UPDATE_RATE_IMU 1
+#define UPDATE_RATE_IMU 20
 #define UPDATE_RATE_DEBUG 5
 
 #define E_STOP_COMMAND_RECEIVED_DURATION 5 // Stop motors if no command was received after this amount of seconds
