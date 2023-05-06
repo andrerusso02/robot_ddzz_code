@@ -4,8 +4,6 @@ import signal
 import sys
 import time
 
-print(sys.path)
-
 import rospy
 from gotogoal import Ddzzbot
 from turtlesim.msg import Pose
@@ -18,7 +16,7 @@ if __name__ == '__main__':
 
 
     pose1 = Pose()
-    pose1.x = 0.5
+    pose1.x = 1.0
     pose1.y = 0.0
     pose1.theta = 0.0
 
@@ -32,8 +30,8 @@ if __name__ == '__main__':
     try:
         while True:
             x.move2goal(pose1)
-            time.sleep(2.0)
+            time.sleep(4.0)
             x.move2goal(pose2)
-            time.sleep(2.0)
+            time.sleep(4.0)
     except rospy.ROSInterruptException:
         pass

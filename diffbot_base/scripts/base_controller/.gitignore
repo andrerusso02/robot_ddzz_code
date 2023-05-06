@@ -3,4 +3,5 @@
 .vscode/launch.json
 .vscode/ipch
 !.pio/
-.pio/libdeps/teensy31/*
+.pio/libdeps/teensy31
+.pio/libdeps/ATmega2560

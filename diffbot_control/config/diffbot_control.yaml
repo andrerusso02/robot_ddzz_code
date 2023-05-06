@@ -30,7 +30,7 @@ diffbot:
     # Wheel separation and diameter. These are both optional.
     # diff_drive_controller will attempt to read either one or both from the
     # URDF if not specified as a parameter
-    wheel_separation : 0.212
+    wheel_separation : 0.212 # 0.212
     wheel_radius : 0.03175
 
     # Odometry covariances for the encoder output of the robot. These values should
@@ -48,7 +48,7 @@ diffbot:
         has_velocity_limits    : true
         max_velocity           : 1.0   # m/s
         has_acceleration_limits: true
-        max_acceleration       : 1.0   # m/s^2
+        max_acceleration       : 100.0   # m/s^2
     angular:
       z:
         has_velocity_limits    : true
