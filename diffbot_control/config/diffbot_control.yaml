@@ -55,3 +55,5 @@ diffbot:
         max_velocity           : 8.0   # rad/s
         has_acceleration_limits: true
         max_acceleration       : 6.0   # rad/s^2
+
+    enable_odom_tf: false
