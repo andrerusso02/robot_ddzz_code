@@ -469,12 +469,12 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::setup()
     sensor_imu_.setGyroSensitivity(1);  //  250 degrees/s
     sensor_imu_.setThrottle();
 
-    sensor_imu_.axe = -0.073;
-    sensor_imu_.aye = 0.008;
-    sensor_imu_.aze = -0.074;
-    sensor_imu_.gxe = 2.216;
-    sensor_imu_.gye = -2.066;
-    sensor_imu_.gze = -3.906;
+    sensor_imu_.axe = -0.073; // -0.073
+    sensor_imu_.aye = 0.008; // = 0.008
+    sensor_imu_.aze = -1; // -0.074
+    sensor_imu_.gxe = 2.216; // = 2.216
+    sensor_imu_.gye = -2.066; // -2.066
+    sensor_imu_.gze = -3.906; // -3.906
 
 
 }

@@ -52,16 +52,16 @@ class Ddzzbot:
         self.min_vel = 0.05
         self.max_vel = 0.4
         self.linear_coef = 1.5
-        self.low_vel_dist = 0.50
+        self.low_vel_dist = 0.50 # si on est a low_vel_dist du but, on ralentit
 
         self.min_ang_vel = 0.5
         self.max_ang_vel = 2.0
         self.rotation_coef = 1.5 # 2.5
-        self.low_vel_angle = pi/2.0
+        self.low_vel_angle = pi/2.0 # si on est a low_vel_angle du but, on ralentit
 
-        self.max_ang_vel_moving = 3.0
+        self.max_ang_vel_moving = 3.0 # si on veut rouler en même temps qu'on tourne
 
-        self.ang_vel_disabling_lin_vel = 0.5
+        self.ang_vel_disabling_lin_vel = 0.5 # rad/s, si on tourne plus vite que ca, on ne bouge pas
 
         while not self.update_pose():
             self.rate.sleep()
@@ -133,9 +133,9 @@ class Ddzzbot:
         angle_to_reach = self.get_steering_angle(goal_pose)
         vel_msg.angular.z = self.compute_cmd_ang_vel(angle_to_reach, self.max_ang_vel_moving)
 
-        th = pi/3.0
+        threshold = pi/3.0
         print(self.get_relative_angle(self.pose, angle_to_reach))
-        if abs(self.get_relative_angle(self.pose, angle_to_reach)) > th:
+        if abs(self.get_relative_angle(self.pose, angle_to_reach)) > threshold:
            vel_msg.linear.x = 0.0
         else: 
             dist_goal = self.get_distance(goal_pose)
