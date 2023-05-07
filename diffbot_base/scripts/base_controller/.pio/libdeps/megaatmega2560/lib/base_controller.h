@@ -21,6 +21,12 @@
 #include "adafruit_feather_wing/adafruit_feather_wing.h"
 #include "pid.h"
 
+
+#include "GY521.h"
+#include "sensor_msgs/Imu.h"
+
+GY521 sensor_imu_(0x69);
+
     namespace diffbot {
 
     /** \brief Communicates with the high level hardware_interface::RobotHW and interacts with
@@ -321,7 +327,9 @@
          */
         void pidRightCallback(const diffbot_msgs::PIDStamped& pid_msg);
 
-    private:
+        void read_and_publish_imu();
+
+        private :
         // Reference to global node handle from main.cpp
         ros::NodeHandle& nh_;
 
@@ -354,6 +362,11 @@
 
         sensor_msgs::JointState msg_measured_joint_states_;
         ros::Publisher pub_measured_joint_states_;
+
+        sensor_msgs::Imu imu_msg_;
+        ros::Publisher pub_imu_;
+
+
 
         std_msgs::Float32 msg_motor_cmd_left_;
         std_msgs::Float32 msg_motor_cmd_right_;
@@ -396,6 +409,7 @@ diffbot::BaseController<TMotorController, TMotorDriver>
     , pub_measured_joint_states_("measured_joint_states", &msg_measured_joint_states_)
     , pub_motor_command_left_("motor_command_left", &msg_motor_cmd_left_)
     , pub_motor_command_right_("motor_command_right", &msg_motor_cmd_right_)
+    , pub_imu_("imu", &imu_msg_)
     , sub_wheel_cmd_velocities_("wheel_cmd_velocities", &BC<TMotorController, TMotorDriver>::commandCallback, this)
     , last_update_time_(nh.now())
     , update_rate_(UPDATE_RATE_IMU, UPDATE_RATE_CONTROL, UPDATE_RATE_DEBUG)
@@ -414,6 +428,7 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::setup()
 {
     nh_.initNode();
     nh_.advertise(pub_encoders_);
+    nh_.advertise(pub_imu_);
 
     // msg_measured_joint_states_ is of type sensor_msgs::JointState
     // which contains float[] joint arrays of undefined size.
@@ -434,10 +449,34 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::setup()
     nh_.subscribe(sub_pid_left_);
     nh_.subscribe(sub_pid_right_);
 
-    while (!nh_.connected())
-    {
+    while (!nh_.connected()) {
+            nh_.spinOnce();
+    }
+
+    nh_.loginfo("Nh connected");
+
+    Wire.begin();
+
+    nh_.loginfo("Wire connected");
+
+    while (sensor_imu_.wakeup() == false) {
         nh_.spinOnce();
     }
+
+    nh_.loginfo("IMU connected");
+
+    sensor_imu_.setAccelSensitivity(1); //  2g
+    sensor_imu_.setGyroSensitivity(1);  //  250 degrees/s
+    sensor_imu_.setThrottle();
+
+    sensor_imu_.axe = -0.073;
+    sensor_imu_.aye = 0.008;
+    sensor_imu_.aze = -0.074;
+    sensor_imu_.gxe = 2.216;
+    sensor_imu_.gye = -2.066;
+    sensor_imu_.gze = -3.906;
+
+
 }
 
 template <typename TMotorController, typename TMotorDriver>
@@ -629,6 +668,29 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::printDebug()
                 String("\npid_right_error (p, i, d): ") + String(motor_pid_right_.proportional()) + String(" ") + String(motor_pid_right_.integral()) + String(" ") + String(motor_pid_right_.derivative());
     nh_.loginfo(log_msg.c_str());
 }
+
+template <typename TMotorController, typename TMotorDriver>
+void diffbot::BaseController<TMotorController,
+                                TMotorDriver>::read_and_publish_imu() {
+
+    sensor_imu_.read();
+
+    imu_msg_.header.stamp = nh_.now();
+    imu_msg_.header.frame_id = "imu";
+    imu_msg_.orientation.x = 0;
+    imu_msg_.orientation.y = 0;
+    imu_msg_.orientation.z = 0;
+    imu_msg_.orientation.w = 0;
+    imu_msg_.angular_velocity.x = sensor_imu_.getGyroX()/180*3.1415926535;
+    imu_msg_.angular_velocity.y = sensor_imu_.getGyroY()/180*3.1415926535;
+    imu_msg_.angular_velocity.z = sensor_imu_.getGyroZ()/180*3.1415926535;
+    imu_msg_.linear_acceleration.x = sensor_imu_.getAccelX()*9.806;
+    imu_msg_.linear_acceleration.y = sensor_imu_.getAccelY()*9.806;
+    imu_msg_.linear_acceleration.z = sensor_imu_.getAccelZ()*9.806;
+
+    pub_imu_.publish(&imu_msg_);
+}
+
 
 
 #endif // DIFFBOT_BASE_CONTROLLER_H

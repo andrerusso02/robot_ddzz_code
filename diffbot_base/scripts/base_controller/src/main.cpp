@@ -52,7 +52,7 @@ void loop()
     ros::Duration imu_dt = nh.now() - base_controller.lastUpdateTime().imu;
     if (imu_dt.toSec() >= base_controller.publishRate().period().imu_)
     {
-        //base_controller.read_and_publish_imu();
+        base_controller.read_and_publish_imu();
         base_controller.lastUpdateTime().imu = nh.now();
     }
 
