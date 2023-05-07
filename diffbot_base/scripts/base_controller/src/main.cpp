@@ -8,8 +8,8 @@ ros::NodeHandle nh;
 
 using namespace diffbot;
 
-HBridgeController motor_controller_right = HBridgeController(2, 3, 4);
-HBridgeController motor_controller_left = HBridgeController(7, 6, 5);
+HBridgeController motor_controller_right = HBridgeController(4, 5, 6);
+HBridgeController motor_controller_left = HBridgeController(9, 8, 7);
 
 BaseController<HBridgeController, Adafruit_MotorShield> base_controller(nh, &motor_controller_left, &motor_controller_right);
 
@@ -52,19 +52,7 @@ void loop()
     ros::Duration imu_dt = nh.now() - base_controller.lastUpdateTime().imu;
     if (imu_dt.toSec() >= base_controller.publishRate().period().imu_)
     {
-        // Sanity check if the IMU is connected
-        if (!imu_is_initialized)
-        {
-            //imu_is_initialized = initIMU();
-            if(imu_is_initialized)
-                nh.loginfo("IMU Initialized");
-            //else
-                //nh.logfatal("IMU failed to initialize. Check your IMU connection.");
-        }
-        else
-        {
-            //publishIMU();
-        }
+        base_controller.read_and_publish_imu();
         base_controller.lastUpdateTime().imu = nh.now();
     }
 

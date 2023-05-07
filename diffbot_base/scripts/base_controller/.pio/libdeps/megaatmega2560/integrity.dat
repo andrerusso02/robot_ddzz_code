@@ -1,0 +1,6 @@
+Wire
+frankjoshua/Rosserial Arduino Library@^0.9.1
+adafruit/Adafruit Motor Shield V2 Library@^1.0.11
+paulstoffregen/Encoder@^1.4.2
+robtillaart/GY521@^0.3.9
+./lib
