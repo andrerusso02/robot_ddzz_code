@@ -52,8 +52,8 @@ diffbot:
     angular:
       z:
         has_velocity_limits    : true
-        max_velocity           : 8.0   # rad/s
+        max_velocity           : 80.0   # rad/s
         has_acceleration_limits: true
-        max_acceleration       : 6.0   # rad/s^2
+        max_acceleration       : 100.0   # rad/s^2
 
     enable_odom_tf: false
