@@ -101,7 +101,7 @@ class Ddzzbot:
             print("Error, could not get pose")
             return False
     
-    def move2angle(self, angle, tolerance):
+    def move2angle(self, angle, tolerance, time_lock=0.5):
         """go to angle in radians"""
         self.update_pose()
         # print("angle: " + str(angle))
@@ -116,15 +116,16 @@ class Ddzzbot:
             print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
             print()
 
-        # lock position for 1 second
-        t = time.time()
-        while time.time() - t < 5.0:
-            self.apply_rotation(angle)
-            self.rate.sleep()
-            # print("angle: " + str(angle*180.0/3.1415))
-            # print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
-            # print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
-            # print()
+        if time_lock != 0:
+            # lock position for seconds
+            t = time.time()
+            while time.time() - t < time_lock:
+                self.apply_rotation(angle)
+                self.rate.sleep()
+                # print("angle: " + str(angle*180.0/3.1415))
+                # print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
+                # print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
+                # print()
 
 
         # stop
