@@ -57,7 +57,7 @@ class Ddzzbot:
         self.distanceAPartirDeLaquelleOnVaDoucement = 0.50 # si on est a distanceAPartirDeLaquelleOnVaDoucement du but, on ralentit
 
 # ROTATION
-        self.min_ang_vel = 0.5
+        self.min_ang_vel = 0.1 # 0.3
         self.max_ang_vel = 2.0
         # self.rotation_coef = 1.5 # 2.5
         self.angleAPartirDeLaquelleOnRalenti = pi/2.0 # si on est a angleAPartirDeLaquelleOnRalenti du but, on ralentit
@@ -238,14 +238,14 @@ class Ddzzbot:
             cmd = map(abs(angle), 0, self.angleAPartirDeLaquelleOnRalenti, self.min_ang_vel, max_vel) * self.sign(angle)
 
 
-        if (self.framesSinceBoost>-1 or self.lastTwistCommand.angular.z == 0.0 or self.lastTwistCommand.angular.z * cmd < 0): # si la derniere commande c'est zero ou si les directions sont inversees
-            cmd = self.boostSpeed * self.sign(angle)
-            print("booooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooost"+str(cmd)+" car")
-            print("cmd = "+str(cmd)+"\t et lastZ = "+str(self.lastTwistCommand.angular.z))
-            self.framesSinceBoost +=1
+        # if (self.framesSinceBoost>-1 or self.lastTwistCommand.angular.z == 0.0 or self.lastTwistCommand.angular.z * cmd < 0): # si la derniere commande c'est zero ou si les directions sont inversees
+        #     cmd = self.boostSpeed * self.sign(angle)
+        #     print("booooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooost"+str(cmd)+" car")
+        #     print("cmd = "+str(cmd)+"\t et lastZ = "+str(self.lastTwistCommand.angular.z))
+        #     self.framesSinceBoost +=1
 
-        if (self.framesSinceBoost==self.maxFrames-1):
-            self.framesSinceBoost = -1
+        # if (self.framesSinceBoost==self.maxFrames-1):
+        #     self.framesSinceBoost = -1
 
         print("cmd = "+str(cmd))
         return cmd
