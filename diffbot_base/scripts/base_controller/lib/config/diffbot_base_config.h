@@ -15,14 +15,14 @@
 #define MOTOR_LEFT 4
 #define MOTOR_RIGHT 3
 
-#define K_P 0.6 // P constant
+#define K_P 0.6 // P constant CA C'EST DES FAUUUUUUX
 #define K_I 0.3 // I constant
 #define K_D 0.5 // D constant
 
 #define PWM_BITS 8  // PWM Resolution of the microcontroller
 
 
-#define UPDATE_RATE_CONTROL 20
+#define UPDATE_RATE_CONTROL 40
 #define UPDATE_RATE_IMU 20
 #define UPDATE_RATE_DEBUG 5
 

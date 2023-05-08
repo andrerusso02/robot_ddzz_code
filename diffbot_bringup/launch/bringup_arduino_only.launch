@@ -5,6 +5,13 @@
       <!-- Load base config to the parameter server -->
     <rosparam command="load" 
               file="$(find diffbot_base)/config/base.yaml"/>
+
+
+
+    <!-- Load controller config to the parameter server -->
+    <rosparam command="load" 
+              file="$(find diffbot_control)/config/diffbot_control.yaml"/>
+
   
   <!-- Base Controller for Motor Driver, Encoders and IMU -->
   <!-- Run rosserial to connect with the Teensy 3.2 board connected to the motor encoders -->
