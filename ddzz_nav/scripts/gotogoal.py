@@ -248,7 +248,7 @@ class Ddzzbot:
         # if (self.framesSinceBoost==self.maxFrames-1):
         #     self.framesSinceBoost = -1
 
-        print("cmd = "+str(cmd))
+        # print("cmd = "+str(cmd))
         return cmd
 
         # print("cmd: " + str(cmd))
@@ -280,10 +280,6 @@ class Ddzzbot:
 
         """Moves the turtle to the goal."""
 
-        distance_tolerance = 0.05
-
-        dist = 10000.0
-
         self.update_pose()
 
         # print("pose :")
@@ -297,6 +293,8 @@ class Ddzzbot:
 
         print("moved to angle")
 
+        dist = 10000.0
+        distance_tolerance = 0.05
         while dist >= distance_tolerance:
             self.rate.sleep()
             self.update_pose()
