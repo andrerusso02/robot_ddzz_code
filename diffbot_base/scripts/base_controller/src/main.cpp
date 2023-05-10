@@ -62,7 +62,7 @@ void loop()
         ros::Duration debug_dt = nh.now() - base_controller.lastUpdateTime().debug;
         if (debug_dt.toSec() >= base_controller.publishRate().period().debug_)
         {
-            base_controller.printDebug();
+            //base_controller.printDebug();
             base_controller.lastUpdateTime().debug = nh.now();
         }
     }

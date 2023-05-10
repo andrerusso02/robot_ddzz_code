@@ -24,11 +24,11 @@
 
     <include file="$(find ddzz_pose_estimation)/launch/pose_estimation.launch"/>
 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_publisher" args="0 0 0.35 0 0 0  base_footprint camera" />
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_publisher" args="0 0 0.35 0 0 0  base_footprint camera" />
 
     <node name="cv_camera_node" pkg="cv_camera" type="cv_camera_node" output="screen">
         <param name="cv_camera/device_id" value="0"/>
-    </node>
+    </node> -->
 
 
     <rosparam file="$(find ddbot_control)/config/ddbot_control.yaml" />

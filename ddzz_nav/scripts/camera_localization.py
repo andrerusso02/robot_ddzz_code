@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+import signal
 import time
 
 import cv2
@@ -6,29 +9,54 @@ import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 
-rospy.loginfo("Hello ROS!")
 
+def handler(signum, frame):
+        exit(1)
+
+signal.signal(signal.SIGINT, handler)
+
+rospy.init_node('camera_loclization', anonymous=True)
+image_pub = rospy.Publisher("camera/cv2", Image, queue_size=10)
 bridge = CvBridge()
 
-def show_image(img):
-    cv2.imshow("Image Window", img)
-    cv2.waitKey(3)
 
-def image_callback(img_msg):
-    rospy.loginfo(img_msg.header)
+def pub_ros(cv_image):
     try:
-         cv_image = bridge.imgmsg_to_cv2(img_msg, "passthrough")
+        image_message = bridge.cv2_to_imgmsg(cv_image, "passthrough")
+        image_pub.publish(image_message)
     except CvBridgeError as e:
-        rospy.logerr("CvBridge Error: {0}".format(e))
+        print(e)
 
-    show_image(cv_image)
+cap = cv2.VideoCapture(0)
+print("camera opened : " + str(cap.isOpened()))
+while cap.isOpened():
+    print("time = " + str(time.time()))
+    ret, image = cap.read()
+    output = image.copy()
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Find circles
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT,1, 100,
+                            param1=50,param2=30,minRadius=170,maxRadius=210)
+    # If some circle is found
+    if circles is not None:
+    # Get the (x, y, r) as integers
+        circles = np.round(circles[0, :]).astype("int")
+        print(circles)
+        print()
+        # loop over the circles
+        for (x, y, r) in circles:
+            cv2.circle(output, (x, y), r, (0, 255, 0), 2)
+            # height = img.shape[0]/2.0
+            # width = img.shape[1]/2.0
 
-# Initalize a subscriber to the "/camera/rgb/image_raw" topic with the function "image_callback" as a callback
-sub_image = rospy.Subscriber("/camera/rgb/image_raw", Image, image_callback)
+            # pos_vert = (img.shape[0]/2.0 - y)/img.shape[0]/2.0
+            pos_horiz = (img.shape[1]/2.0 - x)/(img.shape[0]/2.0)
+            print("horiz = " + str(pos_horiz))
 
-# Initialize an OpenCV Window named "Image Window"
-cv2.namedWindow("Image Window", 1)
+            break
+    # show the output image
+    # cv2.imshow("circle",output)
+    pub_ros(output)
 
-# Loop to keep the program from shutting down unless ROS is shut down, or CTRL+C is pressed
-while not rospy.is_shutdown():
-    rospy.spin()
+    if cv2.waitKey(1) == ord('q'):
+        break
