@@ -21,20 +21,39 @@ if __name__ == '__main__':
                                                   Twist, queue_size=10)
 
     rate = rospy.Rate(20)
+    time.sleep(3)
 
     try:
         while True:
             start = time.time()
             print("deb")  
-            while time.time() - start < 2.0:
+            while time.time() - start < 10.0:
                 rate.sleep()
                 vel_msg = Twist()
-                vel_msg.linear.x = 0.5
-                vel_msg.angular.z = 0
+                vel_msg.linear.x = 0
+                vel_msg.angular.z = 0.5
                 velocity_publisher.publish(vel_msg)
                 
             
             print("fin")
+            vel_msg = Twist()
+            vel_msg.linear.x = 0.0
+            vel_msg.angular.z = 0
+            velocity_publisher.publish(vel_msg)
+        
+            time.sleep(2.0)
+
+            start = time.time()
+            print("deb2")  
+            while time.time() - start < 10.0:
+                rate.sleep()
+                vel_msg = Twist()
+                vel_msg.linear.x = 0
+                vel_msg.angular.z = -0.5
+                velocity_publisher.publish(vel_msg)
+                
+            
+            print("fin2")
             vel_msg = Twist()
             vel_msg.linear.x = 0.0
             vel_msg.angular.z = 0

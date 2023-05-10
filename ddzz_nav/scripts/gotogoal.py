@@ -30,6 +30,8 @@ class Ddzzbot:
         # Creates a node with name 'turtlebot_controller' and make sure it is a
         # unique node (using anonymous=True).
         rospy.init_node('turtlebot_controller', anonymous=True)
+        # # reinit position to zero
+        # rospy.Service('set_pose',)
 
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
@@ -46,22 +48,31 @@ class Ddzzbot:
 
         # rate
         self.rate = rospy.Rate(20)
-
         self.pose = Pose()
 
+# LINEAR
         self.min_vel = 0.05
         self.max_vel = 0.4
         self.linear_coef = 1.5
-        self.low_vel_dist = 0.50 # si on est a low_vel_dist du but, on ralentit
+        self.distanceAPartirDeLaquelleOnVaDoucement = 0.50 # si on est a distanceAPartirDeLaquelleOnVaDoucement du but, on ralentit
 
-        self.min_ang_vel = 0.5
+# ROTATION
+        self.min_ang_vel = 0.1 # 0.3
         self.max_ang_vel = 2.0
-        self.rotation_coef = 1.5 # 2.5
-        self.low_vel_angle = pi/2.0 # si on est a low_vel_angle du but, on ralentit
+        # self.rotation_coef = 1.5 # 2.5
+        self.angleAPartirDeLaquelleOnRalenti = pi/2.0 # si on est a angleAPartirDeLaquelleOnRalenti du but, on ralentit
 
+        # self.ang_vel_disabling_lin_vel = 0.5 # rad/s, si on tourne plus vite que ca, on ne bouge pas
+
+        # self.vitesseMinDemarrage = 2 # rad/s
+
+        self.lastTwistCommand = Twist() # c'est pour le boost de demarrage
+        self.boostSpeed = 3.5
+        self.framesSinceBoost = -1 # -1 = pas de boost
+        self.maxFrames = 10
+
+# LINEAR + ROTATION
         self.max_ang_vel_moving = 3.0 # si on veut rouler en même temps qu'on tourne
-
-        self.ang_vel_disabling_lin_vel = 0.5 # rad/s, si on tourne plus vite que ca, on ne bouge pas
 
         while not self.update_pose():
             self.rate.sleep()
@@ -90,31 +101,48 @@ class Ddzzbot:
             print("Error, could not get pose")
             return False
     
-    def move2angle(self, angle, tolerance):
+    def move2angle(self, angle, tolerance, time_lock=0.5):
         """go to angle in radians"""
         self.update_pose()
         # print("angle: " + str(angle))
         # print("pose.theta: " + str(self.pose.theta))
         # print("angle error: " + str(self.get_relative_angle(self.pose, angle)))
+        
         while abs(self.get_relative_angle(self.pose, angle)) > tolerance:
             self.apply_rotation(angle)
-            self.rate.sleep()
-            # print("angle: " + str(angle))
-            # print("pose.theta: " + str(self.pose.theta))
-            # print("diff: " + str(self.get_relative_angle(self.pose, angle)))
-            # print()
-        
+            self.rate.sleep() # TODO METTRE LUI AVANT?
+            print("angle: " + str(angle*180.0/3.1415))
+            print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
+            print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
+            print()
+
+        if time_lock != 0:
+            # lock position for seconds
+            t = time.time()
+            while time.time() - t < time_lock:
+                self.apply_rotation(angle)
+                self.rate.sleep()
+                # print("angle: " + str(angle*180.0/3.1415))
+                # print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
+                # print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
+                # print()
+
+
+        # stop
         vel_msg = Twist()
         vel_msg.linear.x = 0
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
+        self.lastTwistCommand = vel_msg
 
-        # lock position for 1 second
-        # t = time.time()
-        # while time.time() - t < 1.0:
-        #     self.apply_rotation(angle)
+        time.sleep(3)
+        print("\n\nAPRES")
+    
+        print("angle: " + str(angle*180.0/3.1415))
+        print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
+        print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
+        print()
 
-        # stop
 
         
     
@@ -125,6 +153,7 @@ class Ddzzbot:
         vel_msg.linear.x = 0.0
         vel_msg.angular.z = self.compute_cmd_ang_vel(angle, self.max_ang_vel)
         self.velocity_publisher.publish(vel_msg)
+        self.lastTwistCommand = vel_msg
     
     def apply_move(self, goal_pose):
 
@@ -149,6 +178,7 @@ class Ddzzbot:
         # print()
 
         self.velocity_publisher.publish(vel_msg)
+        self.lastTwistCommand = vel_msg
 
 
         
@@ -181,16 +211,7 @@ class Ddzzbot:
         cmd = constant * cmd
         return cmd
     
-    def get_relative_angle(self, start_pose, goal_pose):
-        angle = goal_pose.theta - start_pose.theta
-        if angle > pi:
-            angle = angle - 2*pi
-        elif angle < -pi:
-            angle = angle + 2*pi
-        return angle
-    
-
-
+    # theta between -pi and pi
     def get_relative_angle(self, start_pose, goal_angle):
         angle = to_pi(goal_angle) - to_pi(start_pose.theta)
         angle = to_pi(angle)
@@ -198,26 +219,36 @@ class Ddzzbot:
 
 
     def compute_cmd_lin_vel(self, goal_dist):
-
-        if goal_dist > self.low_vel_dist:
+        if goal_dist > self.distanceAPartirDeLaquelleOnVaDoucement:
             return self.max_vel
         
-        cmd = map(goal_dist, 0, self.low_vel_dist, self.min_vel, self.max_vel)
+        cmd = map(goal_dist, 0, self.distanceAPartirDeLaquelleOnVaDoucement, self.min_vel, self.max_vel)
         return cmd
 
 
-    def compute_cmd_ang_vel(self, goal_angle, max_vel):
+    def compute_cmd_ang_vel(self, goal_angle, max_vel): # TODO voir
         # print("goal_angle: " + str(goal_angle))
         # print("pose.theta: " + str(self.pose.theta))
         # print("diff: " + str(goal_angle - self.pose.theta))
         angle = self.get_relative_angle(self.pose, goal_angle)
 
-        if angle > self.low_vel_angle:
-            return max_vel * self.sign(angle)
-        
-        # angle < threshold !
+        if angle > self.angleAPartirDeLaquelleOnRalenti:
+            cmd = max_vel * self.sign(angle)
+        else:
+            # angle < threshold 
+            cmd = map(abs(angle), 0, self.angleAPartirDeLaquelleOnRalenti, self.min_ang_vel, max_vel) * self.sign(angle)
 
-        cmd = map(abs(angle), 0, self.low_vel_angle, self.min_ang_vel, max_vel) * self.sign(angle)
+
+        # if (self.framesSinceBoost>-1 or self.lastTwistCommand.angular.z == 0.0 or self.lastTwistCommand.angular.z * cmd < 0): # si la derniere commande c'est zero ou si les directions sont inversees
+        #     cmd = self.boostSpeed * self.sign(angle)
+        #     print("booooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooost"+str(cmd)+" car")
+        #     print("cmd = "+str(cmd)+"\t et lastZ = "+str(self.lastTwistCommand.angular.z))
+        #     self.framesSinceBoost +=1
+
+        # if (self.framesSinceBoost==self.maxFrames-1):
+        #     self.framesSinceBoost = -1
+
+        # print("cmd = "+str(cmd))
         return cmd
 
         # print("cmd: " + str(cmd))
@@ -249,10 +280,6 @@ class Ddzzbot:
 
         """Moves the turtle to the goal."""
 
-        distance_tolerance = 0.05
-
-        dist = 10000.0
-
         self.update_pose()
 
         # print("pose :")
@@ -266,20 +293,22 @@ class Ddzzbot:
 
         print("moved to angle")
 
+        dist = 10000.0
+        distance_tolerance = 0.05
         while dist >= distance_tolerance:
-
+            self.rate.sleep()
             self.update_pose()
             dist = self.get_distance(goal_pose)
 
             self.apply_move(goal_pose)
 
             # Publish at the desired rate.
-            self.rate.sleep()
         
         vel_msg = Twist()
         vel_msg.linear.x = 0
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
+        self.lastTwistCommand = vel_msg
 
         print("moved to goal")
         print("pose :")
@@ -304,7 +333,7 @@ if __name__ == '__main__':
     try:
         x = Ddzzbot()
 
-
+        time.sleep(3)
 
         while(1):
             x.move2angle(pi, 5.0*(pi/180.0))

@@ -616,7 +616,7 @@ void diffbot::BaseController<TMotorController, TMotorDriver>::write()
     }
     if(abs(motor_cmd_right_) < pwm_min_ && motor_cmd_right_ != 0)
     {
-        motor_cmd_right_ = pwm_min_ * motor_cmd_right_/abs(motor_cmd_right_);
+        motor_cmd_right_ = pwm_min_ * motor_cmd_right_/abs(motor_cmd_right_); //signe de motor_cmd_right
     }
     p_motor_controller_left_->setSpeed(motor_cmd_left_);
     p_motor_controller_right_->setSpeed(motor_cmd_right_);
