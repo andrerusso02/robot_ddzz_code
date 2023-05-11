@@ -1,0 +1,18 @@
+   
+<launch>
+    <!-- Odom node (Encoders + IMU) -->
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_imu_publisher" args="0 0 0.1 3.14159 0 0  base_footprint imu" />
+
+    <node pkg="imu_calib" type="apply_calib" name="apply_imu_calib">
+        <remap from="raw" to="/diffbot/imu"/>
+        <remap from="/corrected" to="/diffbot/imu_corrected"/>
+        <param name="calib_file" type="string" value="$(find ddzz_pose_estimation)/params/imu_calib.yaml"/>
+    </node>
+
+   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_odom_node" output="screen" >
+        <rosparam command="load" file="$(find ddzz_pose_estimation)/params/ekf.yaml"/>
+        <remap from="odometry/filtered" to="odom/ekf/enc_imu"/>
+ 
+   </node>
+</launch>
