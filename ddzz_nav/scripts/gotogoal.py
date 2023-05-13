@@ -141,7 +141,7 @@ class Ddzzbot:
         self.velocity_publisher.publish(vel_msg)
         self.lastTwistCommand = vel_msg
 
-        time.sleep(3)
+        # time.sleep(3)
         print("\n\nAPRES")
 
         print("angle: " + str(angle*180.0/3.1415))

@@ -22,7 +22,7 @@
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
         output="screen" ns="diffbot" />
 
-    <include file="$(find ddzz_pose_estimation)/launch/pose_estimation.launch"/>
+    <include file="$(find ddzz_pose_estimation)/launch/pose_estimation2.launch"/>
 
     <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_publisher" args="0 0 0.35 0 0 0  base_footprint camera" />
 
@@ -30,6 +30,10 @@
         <param name="cv_camera/device_id" value="0"/>
     </node> -->
 
+
+    <rosparam file="$(find ddbot_control)/config/ddbot_control.yaml" />
+          <node name="ddbot_base_controler"  pkg="controller_manager" type="spawner" args="mobile_base_controller" required="true"/>
+      <node name="ddbot_base"  pkg="ddbot_base" type="ddbot_base" required="true"/>
 </launch>
 
 

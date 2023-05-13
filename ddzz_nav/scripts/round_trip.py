@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
 
     pose1 = Pose()
-    pose1.x = 1.0
+    pose1.x = 0.5
     pose1.y = 0.0
     pose1.theta = 0.0
 
