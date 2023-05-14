@@ -60,7 +60,10 @@ zonesDepose = [zoneDeposeMilieu, zoneDeposeBas]
 
 startTime = 0
 nombreDePilesRangees = 0  # 3 max
+positionActuelle = Pose()
 
+robot = Ddzzbot()
+actionneurs = Actionneurs()
 
 def waitForConfig():
     print("TODO attente de la config...")
@@ -194,10 +197,54 @@ def findNearestPile(positionActuelle):
     return nearestPile
 
 
+def match():
+    while verifTemps():
+        # on va chercher la premiere pile la plus proche tant qu'il reste des racks vides
+        while nombreDePilesRangees < 3:
+            positionGoal = findNearestPile(positionActuelle)
+            print("On va a la pile la plus proche : ",
+                  positionGoal.x, positionGoal.y, positionGoal.theta)
+            robot.move2goal(positionGoal, OFFSET)
+            time.sleep(5)
+            actionneurs.prendrePile()
+            nombreDePilesRangees += 1
+            time.sleep(5)
+
+        # TODO on a pris les piles, on va a la zone de depot la plus proche
+        nearestDeposeZone = findNearestDeposeZone(positionActuelle)
+        print("On va a la zone de depot la plus proche : ",
+              nearestDeposeZone.x, nearestDeposeZone.y, nearestDeposeZone.theta)
+        robot.move2goal(nearestDeposeZone, OFFSET)
+        time.sleep(5)
+        actionneurs.deposerPile()
+        time.sleep(5)
+        # on recule un peu pour pas toucher la pile
+        positionReculee = Pose()
+        positionReculee.x = positionActuelle.x - \
+            DISTANCE_RECUL*math.cos(positionActuelle.theta)
+        positionReculee.y = positionActuelle.y - \
+            DISTANCE_RECUL*math.sin(positionActuelle.theta)
+        positionReculee.theta = positionActuelle.theta
+        robot.move2goal(positionReculee, OFFSET)
+        time.sleep(5)
+
+    ##############################################
+    # MARGE
+    print("Temps fin marge atteint, retour a la maison")
+    origin = Pose()
+    origin.x = poseInit.x
+    origin.y = poseInit.y
+    origin.theta = 180.0
+    # TODO voir pour le temps de retour, faut absolument désactiver les actionneurs avant la fin du match
+    robot.move2goal(origin)
+
+    # TODO on est sur la fin du match, on desactive les actionneurs
+    print("desactivation des actionneurs ")
+    actionneurs.desactiverActionneurs()
+
+
 def main():
     signal.signal(signal.SIGINT, handler)
-    robot = Ddzzbot()
-    actionneurs = Actionneurs()
 
     waitForInit(actionneurs)
     waitForConfig()
@@ -206,52 +253,9 @@ def main():
     # tirette enfoncee, on peut commencer le match de 100 secondes
     global startTime
     startTime = time.time()
-    positionActuelle = Pose()
 
     try:
-        while verifTemps():
-            # on va chercher la premiere pile la plus proche tant qu'il reste des racks vides
-            while nombreDePilesRangees < 3:
-                positionGoal = findNearestPile(positionActuelle)
-                print("On va a la pile la plus proche : ",
-                      positionGoal.x, positionGoal.y, positionGoal.theta)
-                robot.move2goal(positionGoal, OFFSET)
-                time.sleep(5)
-                actionneurs.prendrePile()
-                nombreDePilesRangees += 1
-                time.sleep(5)
-
-            # TODO on a pris les piles, on va a la zone de depot la plus proche
-            nearestDeposeZone = findNearestDeposeZone(positionActuelle)
-            print("On va a la zone de depot la plus proche : ",
-                  nearestDeposeZone.x, nearestDeposeZone.y, nearestDeposeZone.theta)
-            robot.move2goal(nearestDeposeZone, OFFSET)
-            time.sleep(5)
-            actionneurs.deposerPile()
-            time.sleep(5)
-            # on recule un peu pour pas toucher la pile
-            positionReculee = Pose()
-            positionReculee.x = positionActuelle.x - \
-                DISTANCE_RECUL*math.cos(positionActuelle.theta)
-            positionReculee.y = positionActuelle.y - \
-                DISTANCE_RECUL*math.sin(positionActuelle.theta)
-            positionReculee.theta = positionActuelle.theta
-            robot.move2goal(positionReculee, OFFSET)
-            time.sleep(5)
-
-        ##############################################
-        # MARGE
-        print("Temps fin marge atteint, retour a la maison")
-        origin = Pose()
-        origin.x = poseInit.x
-        origin.y = poseInit.y
-        origin.theta = 180.0
-        # TODO voir pour le temps de retour, faut absolument désactiver les actionneurs avant la fin du match
-        robot.move2goal(origin)
-
-        # TODO on est sur la fin du match, on desactive les actionneurs
-        print("desactivation des actionneurs ")
-        actionneurs.desactiverActionneurs()
+        match()
 
     except rospy.ROSInterruptException:
         pass
