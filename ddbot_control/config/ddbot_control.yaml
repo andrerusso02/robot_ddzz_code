@@ -8,8 +8,8 @@ mobile_base_controller:
   # Wheel separation and diameter. These are both optional.
   # diff_drive_controller will attempt to read either one or both from the
   # URDF if not specified as a parameter
-  wheel_separation : 0.221
-  wheel_radius : 0.0254
+  wheel_separation : 0.1
+  wheel_radius : 0.03735
 
   # Wheel separation and radius multipliers
   #wheel_separation_multiplier: 1.0 # default: 1.0
@@ -37,4 +37,4 @@ mobile_base_controller:
       has_acceleration_limits: true
       max_acceleration       : 100.0   # rad/s^2
 
-  enable_odom_tf: false
+  enable_odom_tf: true
