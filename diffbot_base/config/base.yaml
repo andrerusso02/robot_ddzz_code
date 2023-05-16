@@ -11,7 +11,7 @@ diffbot:
     hardware_interface: false
     base_controller: true
   pid:
-    pwm_min: 0 # PAS TOUCHE A DIT DD
-    k_p: 34.7 #34.5
-    k_i: 1.7 # 1.3
-    k_d: 10  #1
+    pwm_min: 0.0 # PAS TOUCHE A DIT DD
+    k_p: 20.0 # 7.5    1.75    5.0
+    k_i: 5.0 
+    k_d: 5.0

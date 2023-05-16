@@ -15,6 +15,11 @@ def handler(signum, frame):
 if __name__ == '__main__':
 
 
+    offset = Pose()
+    offset.x = 0.0
+    offset.y = 0.0
+    offset.theta = 0.0
+
     pose1 = Pose()
     pose1.x = 0.5
     pose1.y = 0.0
@@ -29,9 +34,9 @@ if __name__ == '__main__':
     x = Ddzzbot()
     try:
         while True:
-            x.move2goal(pose1)
+            x.move2goal(pose1, offset)
             time.sleep(4.0)
-            x.move2goal(pose2)
+            x.move2goal(pose2, offset)
             time.sleep(4.0)
     except rospy.ROSInterruptException:
         pass
