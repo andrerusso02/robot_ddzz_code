@@ -14,4 +14,4 @@ diffbot:
     pwm_min: 0 # PAS TOUCHE A DIT DD
     k_p: 34.7 #34.5
     k_i: 1.7 # 1.3
-    k_d: 10  #1
+    k_d: 10.0  #1
