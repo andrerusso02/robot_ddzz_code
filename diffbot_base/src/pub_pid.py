@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # publish commands at210Hz
     rate = rospy.Rate(20)
 
-    cmd_vel_left = -5.0
+    cmd_vel_left = 5.0
     cmd_vel_right = -5.0
 
     while not rospy.is_shutdown():
