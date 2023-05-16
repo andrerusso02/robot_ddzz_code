@@ -18,8 +18,6 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 # convert to -pi / pi
-
-
 def to_pi(angle):
     if angle > pi:
         angle = angle - 2*pi
@@ -189,7 +187,7 @@ class Ddzzbot:
         return sqrt(pow((goal_pose.x - self.pose.x), 2) +
                     pow((goal_pose.y - self.pose.y), 2))
 
-    def linear_vel(self, goal_pose, constant=2.0):
+    def linear_vel(self, goal_pose, constant=2.0): # !!!!!! UNUSED
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
         cmd = constant * self.get_distance(goal_pose)
         if abs(cmd) > self.max_vel:
@@ -200,7 +198,7 @@ class Ddzzbot:
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
         return atan2(goal_pose.y - self.pose.y, goal_pose.x - self.pose.x)
 
-    def angular_vel(self, goal_pose, constant=2.0):
+    def angular_vel(self, goal_pose, constant=2.0): # !!!!!! UNUSED
         """See video: https://www.youtube.com/watch?v=Qh15Nol5htM."""
         # print(self.get_steering_angle(goal_pose))
         # print(self.pose.theta)
