@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # publish commands at210Hz
     rate = rospy.Rate(20)
 
-    cmd_vel_left = -5.0
+    cmd_vel_left = 5.0
     cmd_vel_right = -5.0
 
     start = time.time()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown() :
         time.sleep(3)
         print("\n\n\n DEPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART")
-        while not rospy.is_shutdown() and time.time()<start+4.0:
+        while not rospy.is_shutdown() and time.time()<start+10.0:
             print("hello")
             # publish constant velocity commands
             msg = WheelsCmdStamped()

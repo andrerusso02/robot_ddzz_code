@@ -277,8 +277,10 @@ class Ddzzbot:
     def check_collision(self):
         # si y'a un adversaire qui est trop proche
         DISTANCE_MIN = 300  # mm
-        while True:
-            print("TODO check collision")
+        print("TODO check collision")
+        return False
+        # while True:
+        #     print("TODO check collision")
 
     def move2goal(self, goal_pose_tmp, offset):
         self.update_pose()

@@ -31,9 +31,9 @@
     </node> -->
 
 
-    <!-- <rosparam file="$(find ddbot_control)/config/ddbot_control.yaml" />
+    <rosparam file="$(find ddbot_control)/config/ddbot_control.yaml" />
           <node name="ddbot_base_controler"  pkg="controller_manager" type="spawner" args="mobile_base_controller" required="true"/>
-      <node name="ddbot_base"  pkg="ddbot_base" type="ddbot_base" required="true"/> -->
+      <node name="ddbot_base"  pkg="ddbot_base" type="ddbot_base" required="true"/>
 </launch>
 
 
