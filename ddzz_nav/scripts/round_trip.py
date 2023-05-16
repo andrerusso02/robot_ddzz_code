@@ -5,7 +5,7 @@ import sys
 import time
 
 import rospy
-from gotogoal import Ddzzbot
+from gotogoalV2 import Ddzzbot
 from turtlesim.msg import Pose
 
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     offset.theta = 0.0
 
     pose1 = Pose()
-    pose1.x = 0.5
+    pose1.x = 2.0
     pose1.y = 0.0
     pose1.theta = 0.0
 

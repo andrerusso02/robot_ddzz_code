@@ -54,22 +54,22 @@ class Ddzzbot:
 # LINEAR
         self.min_vel = 0.05
         self.max_vel = 0.4
-        self.linear_coef = 1.5
+        # self.linear_coef = 1.5
         # si on est a distanceAPartirDeLaquelleOnVaDoucement du but, on ralentit
         self.distanceAPartirDeLaquelleOnVaDoucement = 0.50
 
 # ROTATION
-        self.min_ang_vel = 0.1  # 0.3
-        self.max_ang_vel = 2.0
+        self.min_ang_vel = 0.3  # 0.3
+        self.max_ang_vel = 1.0
         # si on est a angleAPartirDeLaquelleOnRalenti du but, on ralentit
         self.angleAPartirDeLaquelleOnRalenti = pi/2.0
 
-        self.boostSpeed = 3.5
-        self.framesSinceBoost = -1  # -1 = pas de boost
-        self.maxFrames = 10
+        # self.boostSpeed = 3.5
+        # self.framesSinceBoost = -1  # -1 = pas de boost
+        # self.maxFrames = 10
 
 # LINEAR + ROTATION
-        self.max_ang_vel_moving = 3.0  # si on veut rouler en même temps qu'on tourne
+        self.max_ang_vel_moving = 6.0  # si on veut rouler en même temps qu'on tourne
 
         while not self.update_pose():
             self.rate.sleep()
@@ -93,10 +93,10 @@ class Ddzzbot:
         while abs(self.get_relative_angle(self.pose, angle)) > tolerance:
             self.apply_rotation(angle)
             self.rate.sleep()  # TODO METTRE LUI AVANT?
-            print("angle: " + str(angle*180.0/3.1415))
-            print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
-            print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
-            print()
+            # print("angle: " + str(angle*180.0/3.1415))
+            # print("pose.theta: " + str(self.pose.theta*180.0/3.1415))
+            # print("diff: " + str(self.get_relative_angle(self.pose, angle)*180.0/3.1415))
+            # print()
 
         if time_lock != 0:
             # lock position for seconds
@@ -142,7 +142,7 @@ class Ddzzbot:
         print("x: ", self.pose.x)
         print("y: ", self.pose.y)
         print("theta: ", self.pose.theta)
-        print("distance to goal: ", dist)
+        # print("distance to goal: ", dist)
         print()
 
         print("On tourne deja en direction du but : " +
@@ -234,8 +234,10 @@ class Ddzzbot:
     def check_collision(self):
         # si y'a un adversaire qui est trop proche
         DISTANCE_MIN = 300  # mm
-        while True:
-            print("TODO check collision")
+        print("TODO CHECK COLLISION")
+        return False
+        # while True:
+        #     print("TODO check collision")
 
     # theta between -pi and pi
     def get_relative_angle(self, start_pose, goal_angle):
@@ -259,8 +261,7 @@ class Ddzzbot:
         print("angle error apres : "+str(angle_error))
 
         # on a corrige l'angle, on peut avancer
-        vel_msg.angular.z = self.compute_cmd_ang_vel(
-            angle_to_reach, self.max_ang_vel_moving)
+        vel_msg.angular.z = self.compute_cmd_ang_vel(angle_to_reach, self.max_ang_vel_moving)
 
         dist_goal = self.get_distance(goal_pose)
         vel_msg.linear.x = self.compute_cmd_lin_vel(dist_goal)
@@ -306,14 +307,38 @@ if __name__ == '__main__':
     try:
         x = Ddzzbot()
 
+        offset = Pose()
+        offset.x = 0.0
+        offset.y = 0.0
+        offset.theta = 0.0
+
+        # les 4 coins du carré :
+        pose1 = Pose()
+        pose1.x = 0.0
+        pose1.y = 0.0
+        pose1.theta = 0.0
+
+        pose2 = Pose()
+        pose2.x = 0.0
+        pose2.y = 1.0
+        pose2.theta = 0.0
+
+        pose3 = Pose()
+        pose3.x = 1.0
+        pose3.y = 1.0
+        pose3.theta = 0.0
+
+        pose4 = Pose()
+        pose4.x = 1.0
+        pose4.y = 0.0
+        pose4.theta = 0.0
+
+
         time.sleep(3)
         # test, on veut que le robot fasse un carre
         print("on fait un carre")
-        x.move2goal(Pose(0.0, 0.0, 0.0))
-        x.move2goal(Pose(0.0, 1.0, 0.0))
-        x.move2goal(Pose(1.0, 1.0, 0.0))
-        x.move2goal(Pose(1.0, 0.0, 0.0))
-        x.move2goal(Pose(0.0, 0.0, 0.0))
+        x.move2goal(pose1,offset)
+        x.move2goal(pose2,offset)
         print("fini")
 
         rospy.spin()
