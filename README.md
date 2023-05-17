@@ -10,7 +10,7 @@ A faire avant
    - tester ssh dernière ip utilisés : ssh ddzz@192.168.164.212
    - si pas trouvée, scan IP avec PC andre lenovo
    - eteindre la rpi
-
+- preparer chargeur batterie
 Demarrer le robot
 - vérifier que la tirette est enclenchée
 - vérifier que le bouton d'arrêt d'urgence est relevé
