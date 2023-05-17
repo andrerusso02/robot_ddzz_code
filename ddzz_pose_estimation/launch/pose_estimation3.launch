@@ -6,7 +6,7 @@
       output="screen" ns="diffbot" args="_port:=/dev/ttyACM0
                                          _baud:=57600"/> -->
 
-    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_imu_publisher" args="0 0 0.1 3.14159 0 0  base_footprint imu" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_imu_publisher" args="-0.04 0.002 0.03 0 0 0  base_footprint imu" />
 
     <node pkg="imu_calib" type="apply_calib" name="apply_imu_calib">
         <remap from="raw" to="/diffbot/imu"/>
@@ -25,7 +25,7 @@
        <param name="world_frame" value="odom"/>
        <param name="transform_time_offset" value="0.0"/>
 
-       <param name="odom0" value="/diffbot/mobile_base_controller/odom"/>
+       <param name="odom0" value="/mobile_base_controller/odom"/>
        <param name="odom0_differential" value="false" />
        <param name="odom0_relative" value="false" />
        <param name="odom0_queue_size" value="10" />

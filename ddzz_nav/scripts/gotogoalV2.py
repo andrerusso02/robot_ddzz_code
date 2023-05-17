@@ -7,6 +7,7 @@ import tf2_ros
 from math import atan2, pi, pow, sqrt
 from geometry_msgs.msg import PoseStamped, Twist
 from turtlesim.msg import Pose
+from sensor_msgs.msg import LaserScan
 
 
 def handler(signum, frame):
@@ -33,6 +34,29 @@ def sign(x):
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
+
+
+obstacle = False
+
+
+
+def callback_lidar(data):
+    _min = 100000000000
+    for dist in data.ranges:
+        if dist<_min and dist>0.07:
+            _min = dist
+    print("min distance = " + str(_min))
+
+    global obstacle
+    
+    if _min < 0.30:
+        obstacle = True
+        print("STOPPPPPPPPPPPPP")
+    else:
+        obstacle = False
+
+
+rospy.Subscriber("scan", LaserScan, callback_lidar)
 
 class Ddzzbot:
 
@@ -233,11 +257,9 @@ class Ddzzbot:
 
     def check_collision(self):
         # si y'a un adversaire qui est trop proche
-        DISTANCE_MIN = 300  # mm
-        print("TODO CHECK COLLISION")
-        return False
-        # while True:
-        #     print("TODO check collision")
+        if obstacle:
+            print("obstacle detecte !!")
+        return not obstacle
 
     # theta between -pi and pi
     def get_relative_angle(self, start_pose, goal_angle):
