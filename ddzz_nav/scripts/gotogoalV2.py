@@ -61,8 +61,6 @@ rospy.Subscriber("scan", LaserScan, callback_lidar)
 class Ddzzbot:
 
     def __init__(self):
-        # Creates a node with name 'turtlebot_controller' and make sure it is a unique node (using anonymous=True).
-        rospy.init_node('turtlebot_controller', anonymous=True)
 
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
