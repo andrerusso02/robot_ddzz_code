@@ -259,7 +259,8 @@ class Ddzzbot:
         # si y'a un adversaire qui est trop proche
         if obstacle:
             print("obstacle detecte !!")
-        return not obstacle
+        return False
+        #return not obstacle TODO
 
     # theta between -pi and pi
     def get_relative_angle(self, start_pose, goal_angle):
