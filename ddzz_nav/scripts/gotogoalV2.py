@@ -8,6 +8,7 @@ from math import atan2, pi, pow, sqrt
 from geometry_msgs.msg import PoseStamped, Twist
 from turtlesim.msg import Pose
 from sensor_msgs.msg import LaserScan
+from std_msgs.msg import String
 
 
 def handler(signum, frame):
@@ -40,30 +41,19 @@ obstacle = False
 
 
 
-def callback_lidar(data):
-    _min = 100000000000
-    for dist in data.ranges:
-        if dist<_min and dist>0.07:
-            _min = dist
-    print("min distance = " + str(_min))
-
-    global obstacle
-    
-    if _min < 0.30:
-        obstacle = True
-        print("STOPPPPPPPPPPPPP")
-    else:
-        obstacle = False
 
 
-rospy.Subscriber("scan", LaserScan, callback_lidar)
 
 class Ddzzbot:
 
     def __init__(self):
-
+        rospy.init_node('turtlebot_controller', anonymous=True)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
+
+        rospy.Subscriber("team_color", String, self.callback_couleur)
+        rospy.Subscriber("scan", LaserScan, self.callback_lidar)
+
 
         # Publisher which will publish to the topic '/turtle1/cmd_vel'.
         self.velocity_publisher = rospy.Publisher(
@@ -92,10 +82,41 @@ class Ddzzbot:
 
 # LINEAR + ROTATION
         self.max_ang_vel_moving = 6.0  # si on veut rouler en même temps qu'on tourne
+        self.couleur = ""
 
-        while not self.update_pose():
-            self.rate.sleep()
-            pass
+
+
+
+
+
+    # souscription au topic ros /team_color pour connaitre la couleur de l'equipe : bleu ou vert
+    def callback_couleur(self,data):
+        rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
+        self.couleur
+        self.couleur = data.data
+        print("couleur : ", self.couleur)
+
+    def callback_lidar(self,data):
+        _min = 100000000000
+        for dist in data.ranges:
+            if dist<_min and dist>0.07:
+                _min = dist
+        # print("min distance = " + str(_min))
+
+        global obstacle
+        
+        if _min < 0.30:
+            obstacle = True
+            print("STOPPPPPPPPPPPPP")
+        else:
+            obstacle = False
+
+    def waitForConfig(self):
+        print("Waiting for config")
+        while not rospy.is_shutdown() and self.couleur == "":
+            print("waiting...")
+            rospy.sleep(0.1)
+        print("Config received")
 
     def apply_rotation(self, angle):
         """lock angle in radians"""
@@ -323,43 +344,46 @@ class Ddzzbot:
         return pose
 
 
+
+    
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
+    print("starting homologation...")
     try:
+        
         x = Ddzzbot()
+        print("ddzzbot initiated")
+        x.waitForConfig()
+        while not x.update_pose():
+            print("updating pose...")
+            x.rate.sleep()
+            pass
+            
 
+        print("END OF INIT")
         offset = Pose()
         offset.x = 0.0
         offset.y = 0.0
         offset.theta = 0.0
 
-        # les 4 coins du carré :
         pose1 = Pose()
         pose1.x = 0.0
         pose1.y = 0.0
         pose1.theta = 0.0
 
         pose2 = Pose()
-        pose2.x = 0.0
-        pose2.y = 1.0
+        pose2.x = 1.0
+        pose2.y = 0.0
         pose2.theta = 0.0
-
-        pose3 = Pose()
-        pose3.x = 1.0
-        pose3.y = 1.0
-        pose3.theta = 0.0
-
-        pose4 = Pose()
-        pose4.x = 1.0
-        pose4.y = 0.0
-        pose4.theta = 0.0
-
 
         time.sleep(3)
         # test, on veut que le robot fasse un carre
         print("on fait un carre")
-        x.move2goal(pose1,offset)
+        # x.move2goal(pose1,offset)
+        # time.sleep(3)
         x.move2goal(pose2,offset)
+        time.sleep(3)
+        x.move2goal(pose1,offset)
         print("fini")
 
         rospy.spin()

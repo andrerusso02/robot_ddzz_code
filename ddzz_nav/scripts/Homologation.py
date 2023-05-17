@@ -16,7 +16,7 @@ def handler(signum, frame):
 couleur = ""
 
 # souscription au topic ros /team_color pour connaitre la couleur de l'equipe : bleu ou vert
-def callback(data):
+def callback_couleur(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     global couleur
     couleur = data.data
@@ -43,8 +43,7 @@ signal.signal(signal.SIGINT, handler)
 x = Ddzzbot()
 
 # Creates a node with name 'turtlebot_controller' and make sure it is a unique node (using anonymous=True).
-rospy.init_node('turtlebot_controller', anonymous=True)
-rospy.Subscriber("team_color", String, callback)
+rospy.Subscriber("team_color", String, callback_couleur)
 rospy.spin()
 
 try:

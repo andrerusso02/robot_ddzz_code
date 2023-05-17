@@ -37,4 +37,4 @@ mobile_base_controller:
       has_acceleration_limits: true
       max_acceleration       : 100.0   # rad/s^2
 
-  enable_odom_tf: false
+  enable_odom_tf: true

@@ -22,11 +22,10 @@
 
 
     <!-- convert joint states to TF transforms for rviz, etc -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
         ns="diffbot" respawn="false" output="screen">
         <remap from="/joint_states" to="/diffbot/joint_states" />
-        <!-- param name="publish_frequency" type="double" value="30.0" /-->
-    </node>
+    </node> -->
 
     <!-- run the teleop node -->
     <remap from="/cmd_vel" to="/diffbot/mobile_base_controller/cmd_vel"/>
