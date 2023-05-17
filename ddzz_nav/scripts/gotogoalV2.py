@@ -37,7 +37,6 @@ def map(x, in_min, in_max, out_min, out_max):
 
 
 
-obstacle = False
 
 
 
@@ -47,6 +46,7 @@ obstacle = False
 class Ddzzbot:
 
     def __init__(self):
+        self.obstacle = False
         rospy.init_node('turtlebot_controller', anonymous=True)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
@@ -102,14 +102,12 @@ class Ddzzbot:
             if dist<_min and dist>0.07:
                 _min = dist
         # print("min distance = " + str(_min))
-
-        global obstacle
         
-        if _min < 0.30:
-            obstacle = True
+        if _min < 0.50:
+            self.obstacle = True
             print("STOPPPPPPPPPPPPP")
         else:
-            obstacle = False
+            self.obstacle = False
 
     def waitForConfig(self):
         print("Waiting for config")
@@ -134,6 +132,17 @@ class Ddzzbot:
         # print("angle error: " + str(self.get_relative_angle(self.pose, angle)))
 
         while abs(self.get_relative_angle(self.pose, angle)) > tolerance:
+            # verification des collisions
+            if self.check_collision():
+                vel_msg = Twist()
+                vel_msg.linear.x = 0
+                vel_msg.angular.z = 0
+                self.velocity_publisher.publish(vel_msg)
+                print("collision detected")
+
+            while self.check_collision():
+                # on attend ici tant qu'il y a un risque de collision
+                self.rate.sleep()
             self.apply_rotation(angle)
             self.rate.sleep()  # TODO METTRE LUI AVANT?
             # print("angle: " + str(angle*180.0/3.1415))
@@ -145,6 +154,18 @@ class Ddzzbot:
             # lock position for seconds
             t = time.time()
             while time.time() - t < time_lock:
+                print(self.obstacle)
+                # verification des collisions
+                if self.check_collision():
+                    vel_msg = Twist()
+                    vel_msg.linear.x = 0
+                    vel_msg.angular.z = 0
+                    self.velocity_publisher.publish(vel_msg)
+                    print("collision detected")
+
+                while self.check_collision():
+                    # on attend ici tant qu'il y a un risque de collision
+                    self.rate.sleep()
                 self.apply_rotation(angle)
                 self.rate.sleep()
                 # print("angle: " + str(angle*180.0/3.1415))
@@ -199,6 +220,7 @@ class Ddzzbot:
         dist = self.get_distance(goal_pose)
         distance_tolerance = 0.05
         while dist >= distance_tolerance:
+            print(self.obstacle)
             # verification des collisions
             if self.check_collision():
                 vel_msg = Twist()
@@ -209,8 +231,10 @@ class Ddzzbot:
 
             while self.check_collision():
                 # on attend ici tant qu'il y a un risque de collision
-                print("  collision still detected")
+                print(dist)
                 self.rate.sleep()
+            
+
 
             self.rate.sleep()
             self.update_pose()
@@ -276,10 +300,10 @@ class Ddzzbot:
 
     def check_collision(self):
         # si y'a un adversaire qui est trop proche
-        if obstacle:
-            print("obstacle detecte !!")
-        return False
-        #return not obstacle TODO
+        if self.obstacle:
+            print("self.obstacle detecte !!")
+        #return False
+        return self.obstacle
 
     # theta between -pi and pi
     def get_relative_angle(self, start_pose, goal_angle):
@@ -295,8 +319,7 @@ class Ddzzbot:
         angle_to_reach = self.get_steering_angle(goal_pose)
         angle_error = abs(self.get_relative_angle(self.pose, angle_to_reach))
         if angle_error > threshold:
-            print(
-                "angle error too big, stopping linear x and correcting angle, erreur = "+str(angle_error))
+            print("angle error too big, stopping linear x and correcting angle, erreur = "+str(angle_error))
             self.move2angle(angle_to_reach, 0.02)
 
         angle_error = abs(self.get_relative_angle(self.pose, angle_to_reach))
@@ -358,7 +381,6 @@ if __name__ == '__main__':
             print("updating pose...")
             x.rate.sleep()
             pass
-            
 
         print("END OF INIT")
         offset = Pose()
@@ -376,6 +398,11 @@ if __name__ == '__main__':
         pose2.y = 0.0
         pose2.theta = 0.0
 
+        pose3 = Pose()
+        pose3.x = 1.0
+        pose3.y = 1.0
+        pose3.theta = 0.0
+
         time.sleep(3)
         # test, on veut que le robot fasse un carre
         print("on fait un carre")
@@ -384,6 +411,8 @@ if __name__ == '__main__':
         x.move2goal(pose2,offset)
         time.sleep(3)
         x.move2goal(pose1,offset)
+        time.sleep(3)
+        x.move2goal(pose3,offset)
         print("fini")
 
         rospy.spin()
