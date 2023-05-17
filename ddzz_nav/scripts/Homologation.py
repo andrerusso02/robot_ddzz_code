@@ -5,9 +5,10 @@ import sys
 import time
 
 import rospy
-from gotogoal import Ddzzbot
-from turtlesim.msg import Pose
+from gotogoalV2 import Ddzzbot
 from std_msgs.msg import String
+from turtlesim.msg import Pose
+
 
 def handler(signum, frame):
     exit(1)
