@@ -8,7 +8,7 @@ A faire avant
 - Activer point d'accès tel andré
 - Alumer RPI
    - tester ssh dernière ip utilisés : ssh ddzz@192.168.164.212
-   - si pas trouvée, scan IP avec PC andre lenovo
+   - si pas trouvée, scan IP avec PC andre lenovo, et redemarrer le point d'acces
    - eteindre la rpi
 - preparer chargeur batterie
 Demarrer le robot
@@ -23,6 +23,7 @@ Demarrer le robot
 - lancer la commande :
    - nohup roslaunch diffbot_bringup bringup.launch &
 
+- reset arduino odom?
 - choisir la couleur avec le bouton
 
 - [attendre que le prog soit prêt (tf publiée). Comment ?]

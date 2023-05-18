@@ -11,16 +11,16 @@
         And for the encoders rosserial communicates with the Teensy microcontroller to publish the encoder ticks. 
     -->
 
-    <include file="$(find diffbot_bringup)/launch/minimal.launch">
+    <!-- <include file="$(find diffbot_bringup)/launch/minimal.launch">
         <arg name="model" value="$(arg model)" />
-    </include>
+    </include> -->
 
     <!-- Starting robot state publish which will publish tf -->
     <!-- This is needed to publish transforms between all links -->
     <!-- diff_drive_controller publishes only a single transfrom between odom and base_footprint -->
     <!-- The robot_state_publisher reads the joint states published by ros control's joint_state_controller -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
-        output="screen" ns="diffbot" />
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        output="screen" ns="diffbot" /> -->
     
     <node pkg="tf2_ros" type="static_transform_publisher" name="tf_lidar_publisher" args="0 0 0.35 0 0 0  base_footprint neato_laser" />
 
@@ -30,16 +30,15 @@
 
     <!-- <include file="$(find ddzz_pose_estimation)/launch/pose_estimation3.launch"/> -->
 
-    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_publisher" args="0 0 0.35 0 0 0  base_footprint camera" /> -->
-
-    <!-- <node name="cv_camera_node" pkg="cv_camera" type="cv_camera_node" output="screen">
-        <param name="cv_camera/device_id" value="0"/>
-    </node>  -->
-
-
+    <node name="rosserial_base_controller1" pkg="rosserial_python" type="serial_node.py" respawn="false"
+      output="screen" ns="diffbot" args="_port:=/dev/ttyUSB1
+                                         _baud:=57600"/>
     <rosparam file="$(find ddbot_control)/config/ddbot_control.yaml" />
-          <node name="ddbot_base_controler"  pkg="controller_manager" type="spawner" args="mobile_base_controller" required="true"/>
-      <node name="ddbot_base"  pkg="ddbot_base" type="ddbot_base" required="true"/>
+    <node name="ddbot_base_controler"  pkg="controller_manager" type="spawner" args="mobile_base_controller" required="true" output="screen"/>
+    <node name="ddbot_base"  pkg="ddbot_base" type="ddbot_base" required="true" output="screen"/>
+
+    <!-- <node name="gotogoalV2" pkg="ddzz_nav" type="gotogoalV2.py" output="screen"/> -->
+    
 </launch>
 
 
