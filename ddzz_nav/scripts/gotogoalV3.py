@@ -367,7 +367,38 @@ class Ddzzbot:
         return pose
 
 
+def test_allez_retour():
+    offset = Pose()
+    offset.x = 0.0
+    offset.y = 0.0
+    offset.theta = 0.0
 
+    pose1 = Pose()
+    pose1.x = 0.0
+    pose1.y = 0.0
+    pose1.theta = 0.0
+
+    pose2 = Pose()
+    pose2.x = 1.0
+    pose2.y = 0.0
+    pose2.theta = 0.0
+
+    pose3 = Pose()
+    pose3.x = 1.0
+    pose3.y = 1.0
+    pose3.theta = 0.0
+
+    time.sleep(3)
+    # test, on veut que le robot fasse un carre
+    print("go!")
+    # x.move2goal(pose1,offset)
+    # time.sleep(3)
+    x.move2goal(pose2,offset)
+    time.sleep(3)
+    x.move2goal(pose1,offset)
+    time.sleep(3)
+    x.move2goal(pose3,offset)
+    print("fini")
     
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
@@ -383,37 +414,8 @@ if __name__ == '__main__':
             pass
 
         print("END OF INIT")
-        offset = Pose()
-        offset.x = 0.0
-        offset.y = 0.0
-        offset.theta = 0.0
 
-        pose1 = Pose()
-        pose1.x = 0.0
-        pose1.y = 0.0
-        pose1.theta = 0.0
-
-        pose2 = Pose()
-        pose2.x = 1.0
-        pose2.y = 0.0
-        pose2.theta = 0.0
-
-        pose3 = Pose()
-        pose3.x = 1.0
-        pose3.y = 1.0
-        pose3.theta = 0.0
-
-        time.sleep(3)
-        # test, on veut que le robot fasse un carre
-        print("on fait un carre")
-        # x.move2goal(pose1,offset)
-        # time.sleep(3)
-        x.move2goal(pose2,offset)
-        time.sleep(3)
-        x.move2goal(pose1,offset)
-        time.sleep(3)
-        x.move2goal(pose3,offset)
-        print("fini")
+        test_allez_retour()
 
         rospy.spin()
     except rospy.ROSInterruptException:
