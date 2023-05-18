@@ -97,13 +97,14 @@ class Ddzzbot:
         print("couleur : ", self.couleur)
 
     def callback_lidar(self,data):
+        print("ENNNNNNNNNNNNNNNNNN")
         _min = 100000000000
         for dist in data.ranges:
             if dist<_min and dist>0.07:
                 _min = dist
-        # print("min distance = " + str(_min))
+        print("min distance = " + str(_min))
         
-        if _min < 0.50:
+        if _min < 0.60:
             self.obstacle = True
             print("STOPPPPPPPPPPPPP")
         else:
@@ -299,7 +300,8 @@ class Ddzzbot:
                     pow((goal_pose.y - self.pose.y), 2))
 
     def check_collision(self):
-        # si y'a un adversaire qui est trop proche
+        # return False
+        # si y'a un adversaire qui est trop proc²he
         if self.obstacle:
             print("self.obstacle detecte !!")
         #return False
@@ -400,6 +402,22 @@ def test_allez_retour():
     x.move2goal(pose3,offset)
     print("fini")
     
+
+
+def test_rotations():
+    offset = Pose()
+    offset.x = 0.0
+    offset.y = 0.0
+    offset.theta = 0.0
+
+    time.sleep(3)
+    print("go!")
+    while True:
+        x.move2angle(3.14,0.02)
+        time.sleep(3)
+        x.move2angle(0,0.02)
+        time.sleep(3)
+
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, handler)
     print("starting homologation...")
@@ -407,7 +425,7 @@ if __name__ == '__main__':
         
         x = Ddzzbot()
         print("ddzzbot initiated")
-        # x.waitForConfig()
+        x.waitForConfig()
         while not x.update_pose():
             print("updating pose...")
             x.rate.sleep()
@@ -415,7 +433,37 @@ if __name__ == '__main__':
 
         print("END OF INIT")
 
-        test_allez_retour()
+        # test_allez_retour()
+        # test_rotations()
+        offset = Pose()
+        offset.x = 0.0
+        offset.y = 0.0
+        offset.theta = 0.0
+
+        pose1 = Pose()
+        pose2 = Pose()
+        if x.couleur=="vert":     
+            pose1.x = 1.5
+            pose1.y = -0.5
+            pose1.theta = 0.0
+
+            pose2.x = 0.0
+            pose2.y = 0.0
+            pose2.theta = 0.0
+
+        else:
+            pose1.x = 1.5
+            pose1.y = 0.5
+            pose1.theta = 0.0
+
+            pose2.x = 0.0
+            pose2.y = 0.0
+            pose2.theta = 0.0
+
+        time.sleep(3)
+        x.move2goal(pose1,offset)
+        time.sleep(3)
+        x.move2goal(pose2,offset)
 
         rospy.spin()
     except rospy.ROSInterruptException:
