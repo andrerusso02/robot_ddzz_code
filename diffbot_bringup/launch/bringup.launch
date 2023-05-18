@@ -11,9 +11,9 @@
         And for the encoders rosserial communicates with the Teensy microcontroller to publish the encoder ticks. 
     -->
 
-    <!-- <include file="$(find diffbot_bringup)/launch/minimal.launch">
+    <include file="$(find diffbot_bringup)/launch/minimal.launch">
         <arg name="model" value="$(arg model)" />
-    </include> -->
+    </include>
 
     <!-- Starting robot state publish which will publish tf -->
     <!-- This is needed to publish transforms between all links -->
@@ -37,7 +37,7 @@
     <node name="ddbot_base_controler"  pkg="controller_manager" type="spawner" args="mobile_base_controller" required="true" output="screen"/>
     <node name="ddbot_base"  pkg="ddbot_base" type="ddbot_base" required="true" output="screen"/>
 
-    <!-- <node name="gotogoalV2" pkg="ddzz_nav" type="gotogoalV2.py" output="screen"/> -->
+    <node name="gotogoalV2" pkg="ddzz_nav" type="gotogoalV3.py" output="screen"/>
     
 </launch>
 

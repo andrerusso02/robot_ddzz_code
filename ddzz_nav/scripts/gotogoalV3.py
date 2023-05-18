@@ -105,7 +105,7 @@ class Ddzzbot:
         
         if _min < 0.50:
             self.obstacle = True
-            print("STOPPPPPPPPPPPPP : "+str(_min))
+            print("STOPPPPPPPPPPPPP")
         else:
             self.obstacle = False
 
@@ -297,13 +297,12 @@ class Ddzzbot:
         """Euclidean distance between current pose and the goal."""
         return sqrt(pow((goal_pose.x - self.pose.x), 2) +
                     pow((goal_pose.y - self.pose.y), 2))
-                    
 
     def check_collision(self):
         # si y'a un adversaire qui est trop proche
-        return False # TODO
         if self.obstacle:
             print("self.obstacle detecte !!")
+        #return False
         return self.obstacle
 
     # theta between -pi and pi
@@ -389,45 +388,33 @@ if __name__ == '__main__':
         offset.y = 0.0
         offset.theta = 0.0
 
-        pose2 = Pose()
-        if x.couleur == "bleu":
-            pose2.x = 1.0#-1.5
-            pose2.y = 0.0
-            pose2.theta = 0.0
-        elif x.couleur == "vert":
-            pose2.x = 1.0#1.5
-            pose2.y = 0.0
-            pose2.theta = 0.0
-
         pose1 = Pose()
         pose1.x = 0.0
         pose1.y = 0.0
         pose1.theta = 0.0
 
+        pose2 = Pose()
+        pose2.x = 1.0
+        pose2.y = 0.0
+        pose2.theta = 0.0
 
-        # time.sleep(3)
+        pose3 = Pose()
+        pose3.x = 1.0
+        pose3.y = 1.0
+        pose3.theta = 0.0
+
+        time.sleep(3)
         # test, on veut que le robot fasse un carre
+        print("on fait un carre")
         # x.move2goal(pose1,offset)
         # time.sleep(3)
         x.move2goal(pose2,offset)
         time.sleep(3)
         x.move2goal(pose1,offset)
         time.sleep(3)
-
-        # i=0
-        # while i<10:
-        #     i+=1
-        #     # x.move2goal(pose2,offset)
-        #     # time.sleep(3)
-        #     # x.move2goal(pose1,offset)
-        #     # time.sleep(3)
-        #     # x.move2angle(3.14,0.02)
-        #     # time.sleep(3)
-        #     # x.move2angle(0,0.02)
-        #     # time.sleep(3)
-
+        x.move2goal(pose3,offset)
         print("fini")
 
-        # rospy.spin()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass
